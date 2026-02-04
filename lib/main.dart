@@ -1,10 +1,19 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/constants/app_constants.dart';
+import 'core/constants/app_colors.dart';
+import 'presentation/pages/splash/splash_page.dart';
+import 'presentation/pages/login/login_page_new.dart';
+import 'presentation/pages/main/main_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,13 +26,23 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp.router(
-          title: 'HDMP医疗设备管理',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.light,
-          routerConfig: AppRouter.router,
+        return MaterialApp(
+          title: AppConstants.appName,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: AppColors.colorPrimary,
+              brightness: Brightness.light,
+            ),
+            scaffoldBackgroundColor: AppColors.activityBg,
+          ),
           debugShowCheckedModeBanner: false,
+          initialRoute: AppConstants.routeSplash,
+          routes: {
+            AppConstants.routeSplash: (context) => const SplashPage(),
+            AppConstants.routeLogin: (context) => const LoginPageNew(),
+            AppConstants.routeMain: (context) => const MainPage(),
+          },
         );
       },
     );

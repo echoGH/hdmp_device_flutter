@@ -2,45 +2,66 @@
 
 /// 应用主题配置
 class AppTheme {
+  AppTheme._();
+
   // 主色调
-  static const Color primaryColor = Color(0xFF2196F3);
-  static const Color accentColor = Color(0xFF4CAF50);
+  static const Color primaryColor = Color(0xFF4A90E2);
+  static const Color primaryDarkColor = Color(0xFF2E5C8A);
   
-  // 浅色主题
-  static ThemeData lightTheme = ThemeData(
-    primaryColor: primaryColor,
-    scaffoldBackgroundColor: Colors.white,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: primaryColor,
-      elevation: 0,
-      centerTitle: true,
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
+  // 背景色
+  static const Color backgroundColor = Color(0xFFF1F4F5);
+  static const Color surfaceColor = Colors.white;
+  
+  // 文本颜色
+  static const Color textPrimaryColor = Color(0xFF333333);
+  static const Color textSecondaryColor = Color(0xFF606266);
+  static const Color textHintColor = Color(0xFF999999);
+  
+  // 边框颜色
+  static const Color borderColor = Color(0xFFDCDFE6);
+  
+  // 获取亮色主题
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryColor,
+        brightness: Brightness.light,
       ),
-    ),
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryColor,
-      brightness: Brightness.light,
-    ),
-    useMaterial3: true,
-  );
-  
-  // 深色主题
-  static ThemeData darkTheme = ThemeData(
-    primaryColor: primaryColor,
-    scaffoldBackgroundColor: const Color(0xFF121212),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1E1E1E),
-      elevation: 0,
-      centerTitle: true,
-    ),
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryColor,
-      brightness: Brightness.dark,
-    ),
-    useMaterial3: true,
-  );
+      scaffoldBackgroundColor: backgroundColor,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: textPrimaryColor,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(4),
+          borderSide: const BorderSide(color: primaryColor),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 45),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      ),
+    );
+  }
 }
