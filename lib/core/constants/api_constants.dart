@@ -2,7 +2,7 @@
 class ApiConstants {
   // 基础URL
   static const String baseUrl = 'http://192.168.187.18:7009/';
-  
+
   // API端点
   static const String login = '/api/auth/login';
   static const String patientList = '/api/patient/list';

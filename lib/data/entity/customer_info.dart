@@ -1,35 +1,23 @@
-/// 客户信息实体（完全沿用Android项目的CustomerInfos）
+/// 客户信息实体
 class CustomerInfo {
-  int? customerId;
+  String? customerId;
   String? customerName;
   String? customerCode;
-  String? address;
-  String? phone;
-  String? status;
-  String? createTime;
-  String? updateTime;
+  String? parentCustomerId;
 
   CustomerInfo({
     this.customerId,
     this.customerName,
     this.customerCode,
-    this.address,
-    this.phone,
-    this.status,
-    this.createTime,
-    this.updateTime,
+    this.parentCustomerId,
   });
 
   factory CustomerInfo.fromJson(Map<String, dynamic> json) {
     return CustomerInfo(
-      customerId: json['customerId'] as int?,
+      customerId: (json['customerId'] as int?).toString(),
       customerName: json['customerName'] as String?,
       customerCode: json['customerCode'] as String?,
-      address: json['address'] as String?,
-      phone: json['phone'] as String?,
-      status: json['status'] as String?,
-      createTime: json['createTime'] as String?,
-      updateTime: json['updateTime'] as String?,
+      parentCustomerId: (json['parentCustomerId'] as int?).toString()
     );
   }
 
@@ -37,10 +25,6 @@ class CustomerInfo {
         'customerId': customerId,
         'customerName': customerName,
         'customerCode': customerCode,
-        'address': address,
-        'phone': phone,
-        'status': status,
-        'createTime': createTime,
-        'updateTime': updateTime,
+        'parentCustomerId': parentCustomerId,
       };
 }

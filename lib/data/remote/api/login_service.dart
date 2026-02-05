@@ -8,7 +8,7 @@ import '../../entity/customer_info.dart';
 
 part 'login_service.g.dart';
 
-/// 登录相关API服务（完全沿用Android项目的接口）
+/// 登录相关API服务
 @RestApi()
 abstract class LoginService {
   factory LoginService(Dio dio, {String baseUrl}) = _LoginService;
@@ -23,7 +23,5 @@ abstract class LoginService {
 
   /// 获取所有有效的客户列表
   @POST('/framework/phoneappcommon/getAllEffectiveCustomerList')
-  Future<BaseResponse<List<CustomerInfo>>> getAllEffectiveCustomerList(
-    @Body() ConnectionRequest request,
-  );
+  Future<BaseResponse<List<CustomerInfo>>> getAllEffectiveCustomerList(@Body() ConnectionRequest request);
 }

@@ -11,22 +11,13 @@ class AppRouter {
   static const String patientList = '/patient-list';
   static const String patientDetail = '/patient-detail';
   static const String measurement = '/measurement';
-  
+
   static final GoRouter router = GoRouter(
     initialLocation: splash,
     routes: [
-      GoRoute(
-        path: splash,
-        builder: (context, state) => const SplashPage(),
-      ),
-      GoRoute(
-        path: login,
-        builder: (context, state) => const LoginPage(),
-      ),
-      GoRoute(
-        path: main,
-        builder: (context, state) => const MainPage(),
-      ),
+      GoRoute(path: splash, builder: (context, state) => const SplashPage()),
+      GoRoute(path: login, builder: (context, state) => const LoginPage()),
+      GoRoute(path: main, builder: (context, state) => const MainPage()),
     ],
   );
 }

@@ -22,7 +22,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Future<void> _navigateToLogin() async {
     // 等待1秒后跳转到登录页
     await Future.delayed(const Duration(seconds: 1));
-    
+
     if (mounted) {
       Navigator.of(context).pushReplacementNamed(AppConstants.routeLogin);
     }
@@ -36,19 +36,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // 可以添加应用Logo
-            Icon(
-              Icons.medical_services,
-              size: 80,
-              color: Color(0xFF4A90E2),
-            ),
+            Icon(Icons.medical_services, size: 80, color: Color(0xFF4A90E2)),
             SizedBox(height: 20),
             Text(
               AppConstants.appName,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333333),
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF333333)),
             ),
             SizedBox(height: 40),
             CircularProgressIndicator(),

@@ -1,47 +1,46 @@
-﻿# HDMP医疗设备管理系统 - Flutter版本
+﻿# HDMP血糖管理系统 - Flutter版本
 
 ## 项目说明
 
-这是HDMP医疗设备管理系统的Flutter版本，从Android原生项目迁移而来。
+这是HDMP血糖管理系统的Flutter版本，从Android原生项目迁移而来。
 
 ## 项目结构
 
-`
-lib/
- core/                    # 核心功能
-    constants/          # 常量定义
-       api_constants.dart
-       app_constants.dart
-    network/            # 网络层
-       dio_client.dart
-    database/           # 数据库
-    utils/              # 工具类
-    theme/              # 主题配置
-       app_theme.dart
-    routes/             # 路由配置
-        app_router.dart
- data/                   # 数据层
-    models/            # 数据模型
-    repositories/      # 数据仓库
-    datasources/       # 数据源
- domain/                # 领域层
-    entities/          # 实体
-    repositories/      # 仓库接口
-    usecases/          # 用例
- presentation/          # 表现层
-    pages/             # 页面
-       splash/        # 启动页
-       login/         # 登录页
-       main/          # 主页
-    widgets/           # 通用组件
-    providers/         # 状态管理
- main.dart              # 应用入口
++ lib/
+ + core/                    # 核心功能
+   + constants/          # 常量定义
+     + api_constants.dart 
+     + app_constants.dart
+   + network/            # 网络层
+     + dio_client.dart
+   + database/           # 数据库
+   + utils/              # 工具类
+   + theme/              # 主题配置
+     + app_theme.dart
+   + routes/             # 路由配置
+     + app_router.dart
+ + data/                   # 数据层
+   + models/            # 数据模型
+   + repositories/      # 数据仓库
+   + datasources/       # 数据源
+ + domain/                # 领域层
+   + entities/          # 实体
+   + repositories/      # 仓库接口
+   + usecases/          # 用例
+ + presentation/          # 表现层
+   + pages/             # 页面
+     + splash/        # 启动页
+     + login/         # 登录页
+     + main/          # 主页
+   + widgets/           # 通用组件
+   + providers/         # 状态管理
+ + main.dart              # 应用入口
 
-assets/
- images/                # 图片资源
- icons/                 # 图标资源
- fonts/                 # 字体资源
-`
++ assets/
+  + images/                # 图片资源
+  + icons/                 # 图标资源
+  + fonts/                 # 字体资源
+
 
 ## 技术栈
 
@@ -57,33 +56,36 @@ assets/
 
 ### 1. 安装依赖
 
-`ash
-cd D:\project\sino-dev\DMP\hdmp_device_flutter
+`
 flutter pub get
 `
 
 ### 2. 运行项目
 
-`ash
 # Windows
+`
 flutter run -d windows
+`
 
 # Android
+`
 flutter run -d android
+`
 
 # iOS
+`
 flutter run -d ios
 `
 
 ### 3. 构建APK (Android)
 
-`ash
+`
 flutter build apk --release
 `
 
 ### 4. 构建Windows应用
 
-`ash
+`
 flutter build windows --release
 `
 
@@ -140,6 +142,4 @@ final response = await dio.get('/api/endpoint');
 - 版本号: 1.0.10
 - 构建号: 10
 
-## 联系方式
-
-项目地址: D:\project\sino-dev\DMP\hdmp_device_flutter
+项目地址: 
