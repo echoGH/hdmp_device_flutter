@@ -18,9 +18,25 @@ class LoginState {
   final List<CustomerInfo> customers;
   final String? token;
 
-  const LoginState({this.isLoading = false, this.errorMessage, this.username = '', this.password = '', this.customerId = '', this.customers = const [], this.token});
+  const LoginState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.username = '',
+    this.password = '',
+    this.customerId = '',
+    this.customers = const [],
+    this.token,
+  });
 
-  LoginState copyWith({bool? isLoading, String? errorMessage, String? username, String? password, String? customerId, List<CustomerInfo>? customers, String? token}) {
+  LoginState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    String? username,
+    String? password,
+    String? customerId,
+    List<CustomerInfo>? customers,
+    String? token,
+  }) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
@@ -50,11 +66,19 @@ class LoginNotifier extends Notifier<LoginState> {
     final password = prefs.getString(AppConstants.keyPassword) ?? '';
     final customerId = prefs.getString(AppConstants.keyCustomerId) ?? '';
 
-    state = state.copyWith(username: username, password: password, customerId: customerId);
+    state = state.copyWith(
+      username: username,
+      password: password,
+      customerId: customerId,
+    );
   }
 
   /// 保存用户凭据
-  Future<void> _saveCredentials(String username, String password, String customerId) async {
+  Future<void> _saveCredentials(
+    String username,
+    String password,
+    String customerId,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(AppConstants.keyUsername, username);
     await prefs.setString(AppConstants.keyPassword, password);
@@ -70,9 +94,16 @@ class LoginNotifier extends Notifier<LoginState> {
       final response = await _loginService.getAllEffectiveCustomerList(request);
 
       if (response.success == true && response.data != null) {
-        state = state.copyWith(isLoading: false, customers: response.data!, customerId: response.data!.isNotEmpty ? response.data!.first.customerId.toString() : '');
+        state = state.copyWith(
+          isLoading: false,
+          customers: response.data!,
+          customerId: '',
+        );
       } else {
-        state = state.copyWith(isLoading: false, errorMessage: response.message ?? '获取机构列表失败');
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response.message ?? '获取机构列表失败',
+        );
       }
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: '获取客户机构异常: $e');
@@ -110,7 +141,11 @@ class LoginNotifier extends Notifier<LoginState> {
       final encryptedPassword = CryptoUtils.encryptAES(password);
 
       // 构建登录请求
-      final request = LoginRequest(customerId: state.customerId, account: username, userPassword: encryptedPassword);
+      final request = LoginRequest(
+        customerId: state.customerId,
+        account: username,
+        userPassword: encryptedPassword,
+      );
 
       // 调用登录API
       final response = await _loginService.login(request);
@@ -130,16 +165,27 @@ class LoginNotifier extends Notifier<LoginState> {
         // 保存用户凭据
         await _saveCredentials(username, password, state.customerId);
 
-        state = state.copyWith(isLoading: false, token: token, username: username, password: password);
+        state = state.copyWith(
+          isLoading: false,
+          token: token,
+          username: username,
+          password: password,
+        );
 
         return true;
       } else {
         // 登录失败
-        state = state.copyWith(isLoading: false, errorMessage: response.message ?? 'Login failed');
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response.message ?? 'Login failed',
+        );
         return false;
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Login exception: $e');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Login exception: $e',
+      );
       return false;
     }
   }

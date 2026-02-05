@@ -204,7 +204,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                   // 标题
                   Text(
-                    'Diabetes Management System',
+                    '糖尿病管理系统',
                     style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold, color: AppColors.white),
                   ),
 
@@ -289,7 +289,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
     }
 
-    final selectedCustomer = state.customers.firstWhere((c) => c.customerId.toString() == state.customerId, orElse: () => state.customers.first);
+    final selectedCustomer = state.customers.isNotEmpty ? state.customers.firstWhere((c) => c.customerId.toString() == state.customerId, orElse: () => state.customers.first) : null;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 25.w),
@@ -307,8 +307,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             children: [
               Expanded(
                 child: Text(
-                  selectedCustomer.customerName ?? '请选择机构',
-                  style: TextStyle(fontSize: AppDimens.sp14, color: AppColors.color333333),
+                  state.customerId.isEmpty ? '请选择机构' : (selectedCustomer?.customerName ?? '请选择机构'),
+                  style: TextStyle(fontSize: AppDimens.sp14, color: state.customerId.isEmpty ? AppColors.color999999 : AppColors.color333333),
                 ),
               ),
               Icon(Icons.arrow_forward_ios, size: 16.r, color: AppColors.color999999),
@@ -339,7 +339,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               focusNode: _usernameFocus,
               style: TextStyle(fontSize: AppDimens.sp14, color: AppColors.color333333),
               decoration: InputDecoration(
-                hintText: 'account',
+                hintText: '账号',
                 hintStyle: TextStyle(fontSize: AppDimens.sp14, color: AppColors.color999999),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
@@ -361,6 +361,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   /// 构建密码输入框
   Widget _buildPasswordInput() {
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 25.w),
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -380,7 +381,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               obscureText: true,
               style: TextStyle(fontSize: AppDimens.sp14, color: AppColors.color333333),
               decoration: InputDecoration(
-                hintText: 'password',
+                hintText: '密码',
                 hintStyle: TextStyle(fontSize: AppDimens.sp14, color: AppColors.color999999),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
@@ -421,7 +422,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppColors.white)),
               )
             : Text(
-                'LOGIN',
+                '登录',
                 style: TextStyle(fontSize: AppDimens.sp15, color: AppColors.white, fontWeight: FontWeight.w500),
               ),
       ),
