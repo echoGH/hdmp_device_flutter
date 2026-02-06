@@ -1,17 +1,68 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
+import '../../core/network/dio_client.dart';
 import '../../core/models/patient.dart';
-import '../../data/services/patient_service.dart';
+import '../../data/remote/api/patient_service.dart';
+import '../../data/remote/entity/request/query_patient_request.dart';
 
-part 'patient_provider.g.dart';
+/// 患者状态
+class PatientStateModel {
+  final List<Patient> allPatients;
+  final List<Patient> cgmPatients;
+  final List<Patient> insulinPumpPatients;
+  final bool isLoading;
+  final String? error;
+  final int currentTab;
 
-/// 患者状态管理
-@riverpod
-class PatientState extends _$PatientState {
+  const PatientStateModel({
+    required this.allPatients,
+    required this.cgmPatients,
+    required this.insulinPumpPatients,
+    required this.isLoading,
+    this.error,
+    required this.currentTab,
+  });
+
+  PatientStateModel copyWith({
+    List<Patient>? allPatients,
+    List<Patient>? cgmPatients,
+    List<Patient>? insulinPumpPatients,
+    bool? isLoading,
+    String? error,
+    int? currentTab,
+  }) {
+    return PatientStateModel(
+      allPatients: allPatients ?? this.allPatients,
+      cgmPatients: cgmPatients ?? this.cgmPatients,
+      insulinPumpPatients: insulinPumpPatients ?? this.insulinPumpPatients,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      currentTab: currentTab ?? this.currentTab,
+    );
+  }
+
+  List<Patient> getCurrentPatients() {
+    switch (currentTab) {
+      case 0:
+        return allPatients;
+      case 1:
+        return cgmPatients;
+      case 2:
+        return insulinPumpPatients;
+      default:
+        return allPatients;
+    }
+  }
+}
+
+/// 患者Provider
+class PatientNotifier extends Notifier<PatientStateModel> {
+  late PatientService _patientService;
+
   @override
   PatientStateModel build() {
-    return PatientStateModel(
+    _patientService = PatientService(DioClient.instance.dio);
+    return const PatientStateModel(
       allPatients: [],
       cgmPatients: [],
       insulinPumpPatients: [],
@@ -27,34 +78,27 @@ class PatientState extends _$PatientState {
     String? searchKeyword,
     List<String>? wardIdList,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
-    
     try {
-      final dio = Dio();
-      dio.options.baseUrl = 'http://192.168.187.18:7009';
-      dio.options.connectTimeout = const Duration(seconds: 10);
-      dio.options.receiveTimeout = const Duration(seconds: 10);
-      
-      final service = PatientService(dio);
+      state = state.copyWith(isLoading: true, error: null);
 
       // 并行获取三个列表
       final results = await Future.wait([
-        service.getPatientList(
-          PatientRequest(
+        _patientService.getPatientList(
+          QueryPatientRequest(
             customerActiveCode: customerActiveCode,
             searchKeyword: searchKeyword,
             wardIdList: wardIdList,
           ),
         ),
-        service.getCgmPatientList(
-          PatientRequest(
+        _patientService.getCgmPatientList(
+          QueryPatientRequest(
             customerActiveCode: customerActiveCode,
             searchKeyword: searchKeyword,
             wardIdList: wardIdList,
           ),
         ),
-        service.getInsulinPumpPatientList(
-          PatientRequest(
+        _patientService.getInsulinPumpPatientList(
+          QueryPatientRequest(
             customerActiveCode: customerActiveCode,
             searchKeyword: searchKeyword,
             wardIdList: wardIdList,
@@ -93,52 +137,9 @@ class PatientState extends _$PatientState {
   }
 }
 
-/// 患者状态模型
-class PatientStateModel {
-  final List<Patient> allPatients;
-  final List<Patient> cgmPatients;
-  final List<Patient> insulinPumpPatients;
-  final bool isLoading;
-  final String? error;
-  final int currentTab;
-
-  PatientStateModel({
-    required this.allPatients,
-    required this.cgmPatients,
-    required this.insulinPumpPatients,
-    required this.isLoading,
-    this.error,
-    required this.currentTab,
-  });
-
-  PatientStateModel copyWith({
-    List<Patient>? allPatients,
-    List<Patient>? cgmPatients,
-    List<Patient>? insulinPumpPatients,
-    bool? isLoading,
-    String? error,
-    int? currentTab,
-  }) {
-    return PatientStateModel(
-      allPatients: allPatients ?? this.allPatients,
-      cgmPatients: cgmPatients ?? this.cgmPatients,
-      insulinPumpPatients: insulinPumpPatients ?? this.insulinPumpPatients,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-      currentTab: currentTab ?? this.currentTab,
-    );
-  }
-
-  List<Patient> getCurrentPatients() {
-    switch (currentTab) {
-      case 0:
-        return allPatients;
-      case 1:
-        return cgmPatients;
-      case 2:
-        return insulinPumpPatients;
-      default:
-        return allPatients;
-    }
-  }
-}
+/// 患者Provider实例
+final patientProvider = NotifierProvider<PatientNotifier, PatientStateModel>(
+  () {
+    return PatientNotifier();
+  },
+);

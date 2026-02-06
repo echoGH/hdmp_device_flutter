@@ -1,22 +1,36 @@
-/// 查询患者列表请求实体
+/// 患者请求参数
 class QueryPatientRequest {
-  String customerActiveCode;
-  String? searchKeyword;
-  List<String>? wardIdList;
-  int page;
-  int pageSize;
+  final String customerActiveCode;
+  final String? searchKeyword;
+  final List<String>? wardIdList;
+  final int page;
+  final int pageSize;
 
-  QueryPatientRequest({required this.customerActiveCode, this.searchKeyword, this.wardIdList, required this.page, required this.pageSize});
+  QueryPatientRequest({
+    required this.customerActiveCode,
+    this.searchKeyword,
+    this.wardIdList,
+    this.page = 1,
+    this.pageSize = 40,
+  });
 
-  Map<String, dynamic> toJson() => {'customerActiveCode': customerActiveCode, 'searchKeyword': searchKeyword ?? '', 'wardIdList': wardIdList ?? [], 'page': page, 'pageSize': pageSize};
+  Map<String, dynamic> toJson() {
+    return {
+      'customerActiveCode': customerActiveCode,
+      'searchKeyword': searchKeyword ?? '',
+      'wardIdList': wardIdList ?? [],
+      'page': page.toString(),
+      'pageSize': pageSize.toString(),
+    };
+  }
 
   factory QueryPatientRequest.fromJson(Map<String, dynamic> json) {
     return QueryPatientRequest(
       customerActiveCode: json['customerActiveCode'] as String,
       searchKeyword: json['searchKeyword'] as String?,
-      wardIdList: json['wardIdList'] as List<String>?,
-      page: json['page'] as int,
-      pageSize: json['pageSize'] as int,
+      wardIdList: (json['wardIdList'] as List<dynamic>?)?.cast<String>(),
+      page: int.parse(json['page'] as String),
+      pageSize: int.parse(json['pageSize'] as String),
     );
   }
 }

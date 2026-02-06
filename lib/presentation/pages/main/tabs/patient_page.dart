@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/patient.dart';
+import '../../../providers/patient_provider.dart';
 import '../../../widgets/patient_list_item.dart';
 
 /// 患者管理页面
-class PatientPage extends StatefulWidget {
+class PatientPage extends ConsumerStatefulWidget {
   const PatientPage({super.key});
 
   @override
-  State<PatientPage> createState() => _PatientPageState();
+  ConsumerState<PatientPage> createState() => _PatientPageState();
 }
 
-class _PatientPageState extends State<PatientPage>
+class _PatientPageState extends ConsumerState<PatientPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   int _currentIndex = 0;
-  bool _isLoading = false;
-  String? _error;
-
-  // 患者数据
-  List<Patient> _allPatients = [];
-  List<Patient> _cgmPatients = [];
-  List<Patient> _insulinPumpPatients = [];
 
   @override
   void initState() {
@@ -48,93 +42,34 @@ class _PatientPageState extends State<PatientPage>
     setState(() {
       _currentIndex = _tabController.index;
     });
+
+    // 更新provider中的当前tab
+    ref.read(patientProvider.notifier).setCurrentTab(_currentIndex);
   }
 
   /// 加载患者数据
   Future<void> _loadPatients() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    final patientNotifier = ref.read(patientProvider.notifier);
 
-    try {
-      final dio = Dio();
-      dio.options.baseUrl = 'http://192.168.187.18:7009';
-      dio.options.connectTimeout = const Duration(seconds: 10);
-      dio.options.receiveTimeout = const Duration(seconds: 10);
-
-      // 使用模拟数据
-      final mockPatients = [
-        Patient(
-          patientId: '1',
-          inSerialId: '001',
-          patientName: '李毅明',
-          bedCode: '03',
-          sexDesc: '男',
-          ageDesc: '33岁',
-          deptName: '内分泌科',
-          wardName: '一病区',
-          isCgm: '1',
-          isInsulinPump: '0',
-          bgmPlanNum: '5',
-          bgmPlanFinishNum: '1',
-          admDate: '2024-01-01',
-          visitId: '2020200',
-          testInfo: TestInfo(
-            testResult: '6.2',
-            timeCodeName: '早餐前',
-            aimStatus: 'normal',
-          ),
-        ),
-        Patient(
-          patientId: '2',
-          inSerialId: '002',
-          patientName: '张小红',
-          bedCode: '05',
-          sexDesc: '女',
-          ageDesc: '28岁',
-          deptName: '内分泌科',
-          wardName: '一病区',
-          isCgm: '0',
-          isInsulinPump: '1',
-          bgmPlanNum: '3',
-          bgmPlanFinishNum: '2',
-          admDate: '2024-01-02',
-          visitId: '2020201',
-          testInfo: TestInfo(
-            testResult: '8.5',
-            timeCodeName: '午餐后',
-            aimStatus: 'high',
-          ),
-        ),
-      ];
-
-      setState(() {
-        _isLoading = false;
-        _allPatients = mockPatients;
-        _cgmPatients = mockPatients.where((p) => p.isCgm == '1').toList();
-        _insulinPumpPatients = mockPatients
-            .where((p) => p.isInsulinPump == '1')
-            .toList();
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _error = e.toString();
-      });
-    }
+    // 调用provider的loadPatients方法
+    await patientNotifier.loadPatients(
+      customerActiveCode: 'YOUR_CUSTOMER_CODE', // TODO 需要替换为实际的客户激活码，帮我查下安卓项目hdmp-device-app中这里激活码填的是什么
+      // 可以添加搜索关键字和病区ID列表参数
+    );
   }
 
   List<Patient> _getCurrentPatients() {
+    final patientState = ref.watch(patientProvider);
+
     switch (_currentIndex) {
       case 0:
-        return _allPatients;
+        return patientState.allPatients;
       case 1:
-        return _cgmPatients;
+        return patientState.cgmPatients;
       case 2:
-        return _insulinPumpPatients;
+        return patientState.insulinPumpPatients;
       default:
-        return _allPatients;
+        return patientState.allPatients;
     }
   }
 
@@ -305,7 +240,9 @@ class _PatientPageState extends State<PatientPage>
 
   /// 患者内容区域
   Widget _buildPatientContent() {
-    if (_isLoading) {
+    final patientState = ref.watch(patientProvider);
+
+    if (patientState.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0073CF)),
@@ -313,7 +250,7 @@ class _PatientPageState extends State<PatientPage>
       );
     }
 
-    if (_error != null) {
+    if (patientState.error != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -321,7 +258,7 @@ class _PatientPageState extends State<PatientPage>
             Icon(Icons.error_outline, size: 60.w, color: Colors.red),
             SizedBox(height: 20.h),
             Text(
-              _error!,
+              patientState.error!,
               style: TextStyle(fontSize: 16.sp, color: Colors.red),
               textAlign: TextAlign.center,
             ),
