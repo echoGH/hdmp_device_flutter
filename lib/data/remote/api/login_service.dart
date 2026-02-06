@@ -6,7 +6,7 @@ import '../entity/response/login_response.dart';
 import '../entity/response/base_response.dart';
 import '../../entity/customer_info.dart';
 
-part 'login_service.g.dart';
+part '../../services/login_service.g.dart';
 
 /// 登录相关API服务
 @RestApi()
