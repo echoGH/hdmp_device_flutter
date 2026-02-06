@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dio/dio.dart';
-import 'package:hdmp_device_flutter/presentation/providers/patient_provider.dart';
 import '../../../../core/models/patient.dart';
 import '../../../widgets/patient_list_item.dart';
 
@@ -13,7 +12,8 @@ class PatientPage extends StatefulWidget {
   State<PatientPage> createState() => _PatientPageState();
 }
 
-class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin {
+class _PatientPageState extends State<PatientPage>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   int _currentIndex = 0;
   bool _isLoading = false;
@@ -58,11 +58,64 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
     });
 
     try {
+      final dio = Dio();
+      dio.options.baseUrl = 'http://192.168.187.18:7009';
+      dio.options.connectTimeout = const Duration(seconds: 10);
+      dio.options.receiveTimeout = const Duration(seconds: 10);
+
+      // 使用模拟数据
+      final mockPatients = [
+        Patient(
+          patientId: '1',
+          inSerialId: '001',
+          patientName: '李毅明',
+          bedCode: '03',
+          sexDesc: '男',
+          ageDesc: '33岁',
+          deptName: '内分泌科',
+          wardName: '一病区',
+          isCgm: '1',
+          isInsulinPump: '0',
+          bgmPlanNum: '5',
+          bgmPlanFinishNum: '1',
+          admDate: '2024-01-01',
+          visitId: '2020200',
+          testInfo: TestInfo(
+            testResult: '6.2',
+            timeCodeName: '早餐前',
+            aimStatus: 'normal',
+          ),
+        ),
+        Patient(
+          patientId: '2',
+          inSerialId: '002',
+          patientName: '张小红',
+          bedCode: '05',
+          sexDesc: '女',
+          ageDesc: '28岁',
+          deptName: '内分泌科',
+          wardName: '一病区',
+          isCgm: '0',
+          isInsulinPump: '1',
+          bgmPlanNum: '3',
+          bgmPlanFinishNum: '2',
+          admDate: '2024-01-02',
+          visitId: '2020201',
+          testInfo: TestInfo(
+            testResult: '8.5',
+            timeCodeName: '午餐后',
+            aimStatus: 'high',
+          ),
+        ),
+      ];
+
       setState(() {
         _isLoading = false;
         _allPatients = mockPatients;
         _cgmPatients = mockPatients.where((p) => p.isCgm == '1').toList();
-        _insulinPumpPatients = mockPatients.where((p) => p.isInsulinPump == '1').toList();
+        _insulinPumpPatients = mockPatients
+            .where((p) => p.isInsulinPump == '1')
+            .toList();
       });
     } catch (e) {
       setState(() {
@@ -125,7 +178,10 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
                 ),
                 SizedBox(width: 20.w),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 10.h,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey[300]!),
                     borderRadius: BorderRadius.circular(5.r),
@@ -147,7 +203,10 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
                 ),
                 SizedBox(width: 20.w),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 10.h,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey[300]!),
                     borderRadius: BorderRadius.circular(5.r),
@@ -162,7 +221,10 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
                   },
                   child: Text(
                     '查询',
-                    style: TextStyle(fontSize: 15.sp, color: const Color(0xFF0073CF)),
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: const Color(0xFF0073CF),
+                    ),
                   ),
                 ),
               ],
@@ -186,7 +248,10 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
         labelColor: Colors.white,
         unselectedLabelColor: Colors.white70,
         labelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.normal),
-        unselectedLabelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.normal),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.normal,
+        ),
         tabs: const [
           Tab(text: '全部'),
           Tab(text: 'CGM'),
@@ -207,11 +272,17 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
           IconButton(
             onPressed: _handleScan,
             icon: Image.asset(
-              _currentIndex == 0 ? 'assets/icons/ic_pat_scan.png' : 'assets/icons/ic_pat_add.png',
+              _currentIndex == 0
+                  ? 'assets/icons/ic_pat_scan.png'
+                  : 'assets/icons/ic_pat_add.png',
               width: 20.w,
               height: 20.h,
               errorBuilder: (context, error, stackTrace) {
-                return Icon(_currentIndex == 0 ? Icons.qr_code_scanner : Icons.add, color: Colors.white, size: 20.w);
+                return Icon(
+                  _currentIndex == 0 ? Icons.qr_code_scanner : Icons.add,
+                  color: Colors.white,
+                  size: 20.w,
+                );
               },
             ),
           ),
@@ -235,7 +306,11 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
   /// 患者内容区域
   Widget _buildPatientContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0073CF))));
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0073CF)),
+        ),
+      );
     }
 
     if (_error != null) {
@@ -280,28 +355,40 @@ class _PatientPageState extends State<PatientPage> with TickerProviderStateMixin
       itemCount: patients.length,
       itemBuilder: (context, index) {
         final patient = patients[index];
-        return PatientListItem(patient: patient, onTap: () => _handlePatientTap(patient), onMeasureTap: () => _handleMeasureTap(patient));
+        return PatientListItem(
+          patient: patient,
+          onTap: () => _handlePatientTap(patient),
+          onMeasureTap: () => _handleMeasureTap(patient),
+        );
       },
     );
   }
 
   void _handleScan() {
     // TODO: 实现扫描功能
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('扫描功能待实现')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('扫描功能待实现')));
   }
 
   void _handleSearch() {
     // TODO: 实现搜索功能
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('搜索功能待实现')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('搜索功能待实现')));
   }
 
   void _handlePatientTap(Patient patient) {
     // TODO: 跳转到患者详情页面
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('查看患者: ${patient.patientName}')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('查看患者: ${patient.patientName}')));
   }
 
   void _handleMeasureTap(Patient patient) {
     // TODO: 跳转到测量页面
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('为患者 ${patient.patientName} 进行测量')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('为患者 ${patient.patientName} 进行测量')));
   }
 }

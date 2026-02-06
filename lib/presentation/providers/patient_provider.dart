@@ -1,12 +1,100 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 import '../../core/models/patient.dart';
-import '../../core/network/dio_client.dart';
-import '../../data/remote/api/patient_service.dart';
-import '../../data/remote/entity/request/query_patient_request.dart';
+import '../../data/services/patient_service.dart';
+
+part 'patient_provider.g.dart';
 
 /// 患者状态管理
 @riverpod
-class PatientState {
+class PatientState extends _$PatientState {
+  @override
+  PatientStateModel build() {
+    return PatientStateModel(
+      allPatients: [],
+      cgmPatients: [],
+      insulinPumpPatients: [],
+      isLoading: false,
+      error: null,
+      currentTab: 0,
+    );
+  }
+
+  /// 获取患者列表
+  Future<void> loadPatients({
+    required String customerActiveCode,
+    String? searchKeyword,
+    List<String>? wardIdList,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    
+    try {
+      final dio = Dio();
+      dio.options.baseUrl = 'http://192.168.187.18:7009';
+      dio.options.connectTimeout = const Duration(seconds: 10);
+      dio.options.receiveTimeout = const Duration(seconds: 10);
+      
+      final service = PatientService(dio);
+
+      // 并行获取三个列表
+      final results = await Future.wait([
+        service.getPatientList(
+          PatientRequest(
+            customerActiveCode: customerActiveCode,
+            searchKeyword: searchKeyword,
+            wardIdList: wardIdList,
+          ),
+        ),
+        service.getCgmPatientList(
+          PatientRequest(
+            customerActiveCode: customerActiveCode,
+            searchKeyword: searchKeyword,
+            wardIdList: wardIdList,
+          ),
+        ),
+        service.getInsulinPumpPatientList(
+          PatientRequest(
+            customerActiveCode: customerActiveCode,
+            searchKeyword: searchKeyword,
+            wardIdList: wardIdList,
+          ),
+        ),
+      ]);
+
+      state = state.copyWith(
+        isLoading: false,
+        allPatients: results[0].data ?? [],
+        cgmPatients: results[1].data ?? [],
+        insulinPumpPatients: results[2].data ?? [],
+      );
+    } catch (e) {
+      debugPrint('加载患者列表失败: $e');
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  /// 切换Tab
+  void setCurrentTab(int tabIndex) {
+    state = state.copyWith(currentTab: tabIndex);
+  }
+
+  /// 刷新数据
+  Future<void> refresh({
+    required String customerActiveCode,
+    String? searchKeyword,
+    List<String>? wardIdList,
+  }) async {
+    await loadPatients(
+      customerActiveCode: customerActiveCode,
+      searchKeyword: searchKeyword,
+      wardIdList: wardIdList,
+    );
+  }
+}
+
+/// 患者状态模型
+class PatientStateModel {
   final List<Patient> allPatients;
   final List<Patient> cgmPatients;
   final List<Patient> insulinPumpPatients;
@@ -14,10 +102,24 @@ class PatientState {
   final String? error;
   final int currentTab;
 
-  const PatientState({required this.allPatients, required this.cgmPatients, required this.insulinPumpPatients, required this.isLoading, this.error, required this.currentTab});
+  PatientStateModel({
+    required this.allPatients,
+    required this.cgmPatients,
+    required this.insulinPumpPatients,
+    required this.isLoading,
+    this.error,
+    required this.currentTab,
+  });
 
-  PatientState copyWith({List<Patient>? allPatients, List<Patient>? cgmPatients, List<Patient>? insulinPumpPatients, bool? isLoading, String? error, int? currentTab}) {
-    return PatientState(
+  PatientStateModel copyWith({
+    List<Patient>? allPatients,
+    List<Patient>? cgmPatients,
+    List<Patient>? insulinPumpPatients,
+    bool? isLoading,
+    String? error,
+    int? currentTab,
+  }) {
+    return PatientStateModel(
       allPatients: allPatients ?? this.allPatients,
       cgmPatients: cgmPatients ?? this.cgmPatients,
       insulinPumpPatients: insulinPumpPatients ?? this.insulinPumpPatients,
@@ -40,56 +142,3 @@ class PatientState {
     }
   }
 }
-
-/// 患者Provider
-class PatientNotifier extends Notifier<PatientState> {
-  late PatientService _patientService;
-
-  @override
-  PatientState build() {
-    _patientService = PatientService(DioClient.instance.dio);
-    return const PatientState(allPatients: [], cgmPatients: [], insulinPumpPatients: [], isLoading: false, currentTab: 0);
-  }
-
-  /// 并行获取三个列表
-  Future<void> getPatients({
-    required String customerActiveCode,
-    String? searchKeyword,
-    List<String>? wardIdList,
-  }) async {
-    try {
-      final results = await Future.wait([
-        _patientService.getPatientList(QueryPatientRequest(customerActiveCode: customerActiveCode, searchKeyword: searchKeyword, wardIdList: wardIdList, page: 1, pageSize: 10)),
-        _patientService.getCgmPatientList(QueryPatientRequest(customerActiveCode: customerActiveCode, searchKeyword: searchKeyword, wardIdList: wardIdList, page: 1, pageSize: 10)),
-        _patientService.getInsulinPumpPatientList(QueryPatientRequest(customerActiveCode: customerActiveCode, searchKeyword: searchKeyword, wardIdList: wardIdList, page: 1, pageSize: 10)),
-      ]);
-
-      state = state.copyWith(isLoading: false, allPatients: results[0].data ?? [], cgmPatients: results[1].data ?? [], insulinPumpPatients: results[2].data ?? []);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: '获取患者列表异常: $e');
-    }
-  }
-
-  /// 切换Tab
-  void setCurrentTab(int tabIndex) {
-    state = state.copyWith(currentTab: tabIndex);
-  }
-
-  /// 刷新数据
-  Future<void> refresh({
-    required String customerActiveCode,
-    String? searchKeyword,
-    List<String>? wardIdList,
-  }) async {
-    await getPatients(
-      customerActiveCode: customerActiveCode,
-      searchKeyword: searchKeyword,
-      wardIdList: wardIdList,
-    );
-  }
-}
-
-/// 患者Provider实例
-final patientProvider = NotifierProvider<PatientNotifier, PatientState>(() {
-  return PatientNotifier();
-});
