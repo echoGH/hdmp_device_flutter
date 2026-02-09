@@ -13,7 +13,9 @@ class _PatientService implements PatientService {
   _PatientService(this._dio, {String? baseUrl}) : _baseUrl = baseUrl;
 
   @override
-  Future<PatientListResponse> getPatientList(QueryPatientRequest request) {
+  Future<BaseResponse<PatientPageList>> getPatientList(
+    QueryPatientRequest request,
+  ) {
     final queryParameters = <String, dynamic>{};
     final data = request.toJson();
     final path = '/framework/phoneappbgpat/getPatInfo';
@@ -24,12 +26,17 @@ class _PatientService implements PatientService {
           queryParameters: queryParameters,
         )
         .then((response) {
-          return PatientListResponse.fromJson(response.data!);
+          return BaseResponse.fromJson(
+            response.data!,
+            (json) => PatientPageList.fromJson(json),
+          );
         });
   }
 
   @override
-  Future<PatientListResponse> getCgmPatientList(QueryPatientRequest request) {
+  Future<BaseResponse<PatientPageList>> getCgmPatientList(
+    QueryPatientRequest request,
+  ) {
     final queryParameters = <String, dynamic>{};
     final data = request.toJson();
     final path = '/framework/phoneappcommon/getCgmUsePatListWithPage';
@@ -40,13 +47,16 @@ class _PatientService implements PatientService {
           queryParameters: queryParameters,
         )
         .then((response) {
-          return PatientListResponse.fromJson(response.data!);
+          return BaseResponse.fromJson(
+            response.data!,
+            (json) => PatientPageList.fromJson(json),
+          );
         });
   }
 
   @override
-  Future<PatientListResponse> getInsulinPumpPatientList(
-      QueryPatientRequest request,
+  Future<BaseResponse<PatientPageList>> getInsulinPumpPatientList(
+    QueryPatientRequest request,
   ) {
     final queryParameters = <String, dynamic>{};
     final data = request.toJson();
@@ -58,7 +68,10 @@ class _PatientService implements PatientService {
           queryParameters: queryParameters,
         )
         .then((response) {
-          return PatientListResponse.fromJson(response.data!);
+          return BaseResponse.fromJson(
+            response.data!,
+            (json) => PatientPageList.fromJson(json),
+          );
         });
   }
 }

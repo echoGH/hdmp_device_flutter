@@ -10,7 +10,7 @@ class BaseResponse<T> {
   factory BaseResponse.fromJson(Map<String, dynamic> json, T Function(dynamic)? fromJsonT) {
     return BaseResponse<T>(
       code: json['code'] as int?,
-      message: json['message'] as String?,
+      message: json['msg'] as String?,
       data: fromJsonT != null && json['data'] != null ? fromJsonT(json['data']) : json['data'] as T?,
       success: (json['code'] as int?) == 0,
     );

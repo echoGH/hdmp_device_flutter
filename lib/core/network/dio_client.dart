@@ -66,11 +66,11 @@ class DioClient {
 
   /// 添加Token到请求头
   void setToken(String token) {
-    _dio.options.headers['Authorization'] = 'Bearer $token';
+    _dio.options.headers['token'] = token;
   }
 
   /// 清除Token
   void clearToken() {
-    _dio.options.headers.remove('Authorization');
+    _dio.options.headers.remove('token');
   }
 }
