@@ -19,7 +19,13 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   late PageController _pageController;
 
-  final List<Widget> _pages = const [PatientPage(), TasksPage(), AiAssistantPage(), VirtualWardPage(), MorePage()];
+  final List<Widget> _pages = const [
+    PatientPage(),
+    TasksPage(),
+    AiAssistantPage(),
+    VirtualWardPage(),
+    MorePage(),
+  ];
 
   @override
   void initState() {
@@ -46,7 +52,11 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         children: [
           // 主内容区域
-          PageView(controller: _pageController, physics: const NeverScrollableScrollPhysics(), children: _pages),
+          PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: _pages,
+          ),
 
           // AI助手悬浮按钮 - 层级居于底部导航栏之上
           Positioned(
@@ -68,15 +78,27 @@ class _MainPageState extends State<MainPage> {
                         return Container(
                           width: 38.r,
                           height: 33.r,
-                          decoration: BoxDecoration(color: const Color(0xFF0073CF), borderRadius: BorderRadius.circular(8.r)),
-                          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0073CF),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: const Icon(
+                            Icons.auto_awesome,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         );
                       },
                     ),
                     SizedBox(height: 4.h), // 对应Android的marginTop=4dp
                     Text(
                       'AI助手',
-                      style: TextStyle(fontSize: 12.sp, color: _currentIndex == 2 ? const Color(0xFF0073CF) : const Color(0xFF999999)),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: _currentIndex == 2
+                            ? const Color(0xFF0073CF)
+                            : const Color(0xFF999999),
+                      ),
                     ),
                   ],
                 ),
@@ -88,8 +110,17 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: Container(
         height: 65.h,
         decoration: BoxDecoration(
-          image: const DecorationImage(image: AssetImage('assets/icons/tabs/ic_main_bg.png'), fit: BoxFit.fill),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, -2))],
+          image: const DecorationImage(
+            image: AssetImage('assets/icons/tabs/ic_main_bg.png'),
+            fit: BoxFit.fill,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
         child: Row(
           children: List.generate(BottomTabs.tabs.length, (index) {
@@ -120,17 +151,29 @@ class _MainPageState extends State<MainPage> {
                           isSelected ? tab.activeIconAsset : tab.iconAsset,
                           width: 24.r,
                           height: 24.r,
-                          color: isSelected ? const Color(0xFF0073CF) : const Color(0xFF999999),
                           errorBuilder: (context, error, stackTrace) {
-                            print('图片加载失败: ${isSelected ? tab.activeIconAsset : tab.iconAsset}');
+                            print(
+                              '图片加载失败: ${isSelected ? tab.activeIconAsset : tab.iconAsset}',
+                            );
                             print('错误信息: $error');
-                            return Icon(isSelected ? Icons.circle : Icons.circle_outlined, size: 24.r, color: isSelected ? const Color(0xFF0073CF) : const Color(0xFF999999));
+                            return Icon(
+                              isSelected ? Icons.circle : Icons.circle_outlined,
+                              size: 24.r,
+                              color: isSelected
+                                  ? const Color(0xFF0073CF)
+                                  : const Color(0xFF999999),
+                            );
                           },
                         ),
                       ),
                       Text(
                         tab.title,
-                        style: TextStyle(fontSize: 12.sp, color: isSelected ? const Color(0xFF0073CF) : const Color(0xFF999999)),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: isSelected
+                              ? const Color(0xFF0073CF)
+                              : const Color(0xFF999999),
+                        ),
                       ),
                     ],
                   ),

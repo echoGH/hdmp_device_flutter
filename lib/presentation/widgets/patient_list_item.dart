@@ -20,7 +20,7 @@ class PatientListItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+        margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -40,17 +40,18 @@ class PatientListItem extends StatelessWidget {
             // 床号和姓名
             Row(
               children: [
-                Text(
-                  '${patient.bedCode} ${patient.patientName}',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF17222D),
+                Expanded(
+                  child: Text(
+                    '${patient.bedCode} ${patient.patientName}',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF17222D),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const Spacer(),
                 // CGM标签
                 if (patient.isCgm == '1')
                   Container(
