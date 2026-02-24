@@ -130,7 +130,7 @@ class LoginNotifier extends Notifier<LoginState> {
 
     // 检查客户ID
     if (state.customers.isNotEmpty && state.customerId.isEmpty) {
-      state = state.copyWith(errorMessage: '请选择客户');
+      state = state.copyWith(errorMessage: '请选择机构');
       return false;
     }
 

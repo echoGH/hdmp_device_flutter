@@ -24,7 +24,25 @@ class _PatientPageState extends ConsumerState<PatientPage>
   // 添加搜索相关状态
   final TextEditingController _searchController = TextEditingController();
   String? _selectedWardId;
-  List<String> _wardIds = ['WARD_001', 'WARD_002', 'WARD_003']; // 示例病区ID
+  String? _selectedDepartment;
+  bool _isSearchOpen = false;
+
+  // 示例科室和病区数据
+  final Map<String, List<String>> _departments = {
+    'CCU': ['CCU1病区A', 'CCU1病区B'],
+    'CCU2': [],
+    '产科': ['测试病区'],
+    '儿科(1)': [],
+    '儿科(2)': [],
+    '新生儿科': [],
+  };
+
+  // 当前选中的科室
+  List<String> _getCurrentWards() {
+    return _selectedDepartment != null
+        ? _departments[_selectedDepartment] ?? []
+        : [];
+  }
 
   @override
   void initState() {
@@ -107,6 +125,8 @@ class _PatientPageState extends ConsumerState<PatientPage>
           ),
           // Tab导航栏和右侧操作按钮同一行
           _buildTabBarWithActions(),
+          // 搜索面板
+          _buildSearchPanel(),
           // 患者列表
           Expanded(child: _buildPatientContent()),
         ],
@@ -125,9 +145,12 @@ class _PatientPageState extends ConsumerState<PatientPage>
           Expanded(
             child: TabBar(
               controller: _tabController,
-              indicatorColor: Colors.white,
-              indicatorWeight: 2.h,
-              indicatorSize: TabBarIndicatorSize.label,
+              // 自定义指示器，确保位于文字下方且不遮挡
+              indicator: const UnderlineTabIndicator(
+                borderSide: BorderSide(color: Colors.white, width: 2),
+                insets: EdgeInsets.symmetric(horizontal: 5.0), // 调整指示器宽度
+              ),
+              // 使用默认的指示器位置，避免遮挡文字
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white70,
               labelStyle: TextStyle(
@@ -138,6 +161,11 @@ class _PatientPageState extends ConsumerState<PatientPage>
                 fontSize: 15.sp,
                 fontWeight: FontWeight.normal,
               ),
+              // 调整Tab之间的间隔
+              labelPadding: EdgeInsets.symmetric(
+                horizontal: 10.w,
+              ), // 设置Tab之间的水平间隔
+              // 使用标准Tab组件
               tabs: const [
                 Tab(text: '全部'),
                 Tab(text: 'CGM'),
@@ -148,17 +176,16 @@ class _PatientPageState extends ConsumerState<PatientPage>
           // 右侧操作按钮
           Row(
             children: [
+              // 根据Android实现，始终显示扫码图标
               IconButton(
                 onPressed: _handleScan,
                 icon: Image.asset(
-                  _currentIndex == 0
-                      ? 'assets/icons/ic_pat_scan.png'
-                      : 'assets/icons/ic_pat_add.png',
+                  'assets/icons/ic_pat_scan.png',
                   width: 20.w,
                   height: 20.h,
                   errorBuilder: (context, error, stackTrace) {
                     return Icon(
-                      _currentIndex == 0 ? Icons.qr_code_scanner : Icons.add,
+                      Icons.qr_code_scanner,
                       color: Colors.white,
                       size: 20.w,
                     );
@@ -268,8 +295,148 @@ class _PatientPageState extends ConsumerState<PatientPage>
 
   /// 处理搜索按钮点击
   void _handleSearch() {
-    // 打开搜索界面
-    print('搜索功能');
+    setState(() {
+      _isSearchOpen = !_isSearchOpen;
+      if (!_isSearchOpen) {
+        // 关闭搜索时清空搜索条件
+        _searchController.clear();
+        _selectedWardId = null;
+        _selectedDepartment = null;
+        _loadPatients(); // 重新加载所有数据
+      }
+    });
+  }
+
+  /// 处理搜索提交
+  void _handleSearchSubmit() {
+    _loadPatients();
+  }
+
+  /// 处理科室选择
+  void _handleDepartmentSelect(String department) {
+    setState(() {
+      if (_selectedDepartment == department) {
+        _selectedDepartment = null;
+        _selectedWardId = null;
+      } else {
+        _selectedDepartment = department;
+        _selectedWardId = null;
+      }
+    });
+  }
+
+  /// 处理病区选择
+  void _handleWardSelect(String ward) {
+    setState(() {
+      _selectedWardId = _selectedWardId == ward ? null : ward;
+    });
+    _loadPatients(); // 选择病区后立即搜索
+  }
+
+  /// 构建搜索面板
+  Widget _buildSearchPanel() {
+    if (!_isSearchOpen) return const SizedBox.shrink();
+
+    return Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 搜索输入框
+          Container(
+            padding: EdgeInsets.all(10.w),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: '姓名/床号/住院号',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+              ),
+              onSubmitted: (_) => _handleSearchSubmit(),
+            ),
+          ),
+
+          // 科室和病区选择区域
+          Container(
+            height: 200.h,
+            child: Row(
+              children: [
+                // 科室列表
+                Expanded(
+                  flex: 1,
+                  child: ListView.builder(
+                    itemCount: _departments.keys.length,
+                    itemBuilder: (context, index) {
+                      final department = _departments.keys.elementAt(index);
+                      final isSelected = _selectedDepartment == department;
+                      return GestureDetector(
+                        onTap: () => _handleDepartmentSelect(department),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                          color: isSelected
+                              ? const Color(0xFFE6F4FF)
+                              : Colors.white,
+                          child: Text(
+                            department,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: isSelected
+                                  ? const Color(0xFF0073CF)
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // 病区列表
+                Expanded(
+                  flex: 2,
+                  child: ListView.builder(
+                    itemCount: _getCurrentWards().length,
+                    itemBuilder: (context, index) {
+                      final ward = _getCurrentWards()[index];
+                      final isSelected = _selectedWardId == ward;
+                      return GestureDetector(
+                        onTap: () => _handleWardSelect(ward),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                          color: isSelected
+                              ? const Color(0xFFE6F4FF)
+                              : Colors.white,
+                          child: Text(
+                            ward,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: isSelected
+                                  ? const Color(0xFF0073CF)
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 处理患者项点击

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/models/patient.dart';
+import '../../core/constants/app_colors.dart';
 
 /// 患者列表项Widget
 class PatientListItem extends StatelessWidget {
@@ -60,12 +61,15 @@ class PatientListItem extends StatelessWidget {
                     margin: EdgeInsets.only(left: 8.w),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0073CF),
+                      color: const Color(0xFFE9F2FB), // 半透明白色背景
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
                       '动',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF0073CF),
+                      ), // 文字颜色：#0073CF
                     ),
                   ),
                 // 胰岛素泵标签
@@ -76,12 +80,15 @@ class PatientListItem extends StatelessWidget {
                     margin: EdgeInsets.only(left: 8.w),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF21C4BB),
+                      color: const Color(0xFFE8F9F8), // 半透明白色背景
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
                       '泵',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF21C4BB),
+                      ), // 文字颜色：#21C4BB
                     ),
                   ),
               ],
@@ -160,12 +167,19 @@ class PatientListItem extends StatelessWidget {
                     height: 24.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0073CF),
-                      borderRadius: BorderRadius.circular(4.r),
+                      color: const Color(0xFFE6F4FF), // 半透明白色背景
+                      borderRadius: BorderRadius.circular(12.r), // 圆角半径12dp
+                      border: Border.all(
+                        color: const Color(0xFF0073CF), // 边框颜色：#0073CF
+                        width: 0.5.w, // 边框宽度：0.5dp
+                      ),
                     ),
                     child: Text(
                       '测量',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: const Color(0xFF0073CF),
+                      ), // 文字颜色：#0073CF
                     ),
                   ),
                 ),

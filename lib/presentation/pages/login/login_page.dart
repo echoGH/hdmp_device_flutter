@@ -37,8 +37,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final notifier = ref.read(loginProvider.notifier);
     await notifier.loadSavedCredentials();
     final state = ref.read(loginProvider);
-    _usernameController.text = ""; // state.username;
-    _passwordController.text = ""; // state.password;
+    _usernameController.text = "admin8888"; // state.username;
+    _passwordController.text = "a12345678"; // state.password;
   }
 
   @override
@@ -66,7 +66,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
-  /// 显示客户选择器
+  /// 显示机构选择器
   void _showCustomerPicker() {
     final state = ref.read(loginProvider);
     if (state.customers.isEmpty) {
@@ -265,7 +265,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   /// 构建机构选择器（表单首行）
   Widget _buildCustomerSelector(LoginState state) {
-    // 如果没有客户列表，显示提示文本
+    // 如果没有机构列表，显示提示文本
     if (state.customers.isEmpty) {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 25.w),
