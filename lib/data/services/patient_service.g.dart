@@ -13,65 +13,32 @@ class _PatientService implements PatientService {
   _PatientService(this._dio, {String? baseUrl}) : _baseUrl = baseUrl;
 
   @override
-  Future<BaseResponse<PatientPageList>> getPatientList(
-    QueryPatientRequest request,
-  ) {
+  Future<BaseResponse<PatientPageList>> getPatientList(QueryPatientRequest request) {
     final queryParameters = <String, dynamic>{};
     final data = request.toJson();
     final path = '/framework/phoneappbgpat/getPatInfo';
-    return _dio
-        .post<Map<String, dynamic>>(
-          path,
-          data: data,
-          queryParameters: queryParameters,
-        )
-        .then((response) {
-          return BaseResponse.fromJson(
-            response.data!,
-            (json) => PatientPageList.fromJson(json),
-          );
-        });
+    return _dio.post<Map<String, dynamic>>(path, data: data, queryParameters: queryParameters).then((response) {
+      return BaseResponse.fromJson(response.data!, (json) => PatientPageList.fromJson(json));
+    });
   }
 
   @override
-  Future<BaseResponse<PatientPageList>> getCgmPatientList(
-    QueryPatientRequest request,
-  ) {
+  Future<BaseResponse<CGMPatientPageList>> getCgmPatientList(QueryPatientRequest request) {
     final queryParameters = <String, dynamic>{};
     final data = request.toJson();
     final path = '/framework/phoneappcommon/getCgmUsePatListWithPage';
-    return _dio
-        .post<Map<String, dynamic>>(
-          path,
-          data: data,
-          queryParameters: queryParameters,
-        )
-        .then((response) {
-          return BaseResponse.fromJson(
-            response.data!,
-            (json) => PatientPageList.fromJson(json),
-          );
-        });
+    return _dio.post<Map<String, dynamic>>(path, data: data, queryParameters: queryParameters).then((response) {
+      return BaseResponse.fromJson(response.data!, (json) => CGMPatientPageList.fromJson(json));
+    });
   }
 
   @override
-  Future<BaseResponse<PatientPageList>> getInsulinPumpPatientList(
-    QueryPatientRequest request,
-  ) {
+  Future<BaseResponse<InsPatientPageList>> getInsulinPumpPatientList(QueryPatientRequest request) {
     final queryParameters = <String, dynamic>{};
     final data = request.toJson();
     final path = '/framework/phoneappcommon/getCgmFinishPatListWithPage';
-    return _dio
-        .post<Map<String, dynamic>>(
-          path,
-          data: data,
-          queryParameters: queryParameters,
-        )
-        .then((response) {
-          return BaseResponse.fromJson(
-            response.data!,
-            (json) => PatientPageList.fromJson(json),
-          );
-        });
+    return _dio.post<Map<String, dynamic>>(path, data: data, queryParameters: queryParameters).then((response) {
+      return BaseResponse.fromJson(response.data!, (json) => InsPatientPageList.fromJson(json));
+    });
   }
 }

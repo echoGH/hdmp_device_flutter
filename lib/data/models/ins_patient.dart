@@ -1,7 +1,8 @@
-import 'package:hdmp_device_flutter/core/models/pageInfo.dart';
+
+import '../datasources/page_info.dart';
 
 /// 患者基本信息
-class Patient {
+class InsPatient {
   final String id;
 
   /// 患者ID
@@ -57,7 +58,7 @@ class Patient {
   /// 最近检测信息
   final TestInfo? testInfo;
 
-  Patient({
+  InsPatient({
     required this.id,
     required this.patientId,
     required this.patientName,
@@ -80,8 +81,8 @@ class Patient {
     this.testInfo,
   });
 
-  factory Patient.fromJson(Map<String, dynamic> json) {
-    return Patient(
+  factory InsPatient.fromJson(Map<String, dynamic> json) {
+    return InsPatient(
       id: json['id'] as String,
       patientId: json['patientId'] as String,
       patientName: json['patientName'] as String,
@@ -165,19 +166,19 @@ class TestInfo {
   }
 }
 
-/// 患者列表响应
-class PatientPageList extends PageInfo {
-  final List<Patient>? list;
+/// 胰岛素泵患者列表响应
+class InsPatientPageList extends PageInfo {
+  final List<InsPatient>? list;
 
-  PatientPageList({super.totalCount, super.pageSize, super.totalPage, super.currPage, this.list});
+  InsPatientPageList({super.totalCount, super.pageSize, super.totalPage, super.currPage, this.list});
 
-  factory PatientPageList.fromJson(Map<String, dynamic> json) {
-    return PatientPageList(
+  factory InsPatientPageList.fromJson(Map<String, dynamic> json) {
+    return InsPatientPageList(
       totalCount: json['totalCount'] as int?,
       pageSize: json['pageSize'] as int?,
       totalPage: json['totalPage'] as int?,
       currPage: json['currPage'] as int?,
-      list: (json['list'] as List<dynamic>?)?.map((e) => Patient.fromJson(e as Map<String, dynamic>)).toList(),
+      list: (json['list'] as List<dynamic>?)?.map((e) => InsPatient.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
 }

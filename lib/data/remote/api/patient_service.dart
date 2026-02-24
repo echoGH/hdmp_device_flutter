@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import '../../../core/models/patient.dart';
+import '../../models/cgm_patient.dart';
+import '../../models/ins_patient.dart';
+import '../../models/patient.dart';
 import '../entity/request/query_patient_request.dart';
 import '../entity/response/base_response.dart';
 
 part '../../services/patient_service.g.dart';
 
-/// 患者相关API服务 - 与login一致的retrofit实现
+/// 患者相关API服务
 @RestApi()
 abstract class PatientService {
   factory PatientService(Dio dio, {String baseUrl}) = _PatientService;
@@ -17,9 +19,9 @@ abstract class PatientService {
 
   /// 获取CGM患者列表
   @POST('/framework/phoneappcommon/getCgmUsePatListWithPage')
-  Future<BaseResponse<PatientPageList>> getCgmPatientList(@Body() QueryPatientRequest request);
+  Future<BaseResponse<CGMPatientPageList>> getCgmPatientList(@Body() QueryPatientRequest request);
 
   /// 获取胰岛素泵患者列表
   @POST('/framework/phoneappcommon/getCgmFinishPatListWithPage')
-  Future<BaseResponse<PatientPageList>> getInsulinPumpPatientList(@Body() QueryPatientRequest request);
+  Future<BaseResponse<InsPatientPageList>> getInsulinPumpPatientList(@Body() QueryPatientRequest request);
 }

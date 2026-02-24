@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math'; // 添加随机数导入
 import '../../../../core/constants/app_constants.dart';
-import '../../../../core/models/patient.dart';
+import '../../../../data/models/patient.dart';
+import '../../../../data/models/cgm_patient.dart';
+import '../../../../data/models/ins_patient.dart';
 import '../../../providers/patient_provider.dart';
 import '../../../widgets/patient_list_item.dart';
+import '../../../widgets/cgm_patient_list_item.dart';
+import '../../../widgets/ins_patient_list_item.dart';
 
 /// 患者管理页面
 class PatientPage extends ConsumerStatefulWidget {
@@ -96,7 +99,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
     );
   }
 
-  List<Patient> _getCurrentPatients() {
+  dynamic _getCurrentPatients() {
     final patientState = ref.watch(patientProvider);
 
     switch (_currentIndex) {
@@ -115,20 +118,25 @@ class _PatientPageState extends ConsumerState<PatientPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent, // 设置背景透明
-      body: Column(
+      body: Stack(
         children: [
-          // 添加指定样式的长方形
-          Container(
-            width: double.infinity, // 100%宽度
-            height: 40.h, // 高度40
-            color: const Color(0xFF0073CF), // 背景色
+          // 底层内容
+          Column(
+            children: [
+              // 添加指定样式的长方形
+              Container(
+                width: double.infinity, // 100%宽度
+                height: 40.h, // 高度40
+                color: const Color(0xFF0073CF), // 背景色
+              ),
+              // Tab导航栏和右侧操作按钮同一行
+              _buildTabBarWithActions(),
+              // 患者列表
+              Expanded(child: _buildPatientContent()),
+            ],
           ),
-          // Tab导航栏和右侧操作按钮同一行
-          _buildTabBarWithActions(),
-          // 搜索面板
+          // 搜索面板 - 作为覆盖层显示
           _buildSearchPanel(),
-          // 患者列表
-          Expanded(child: _buildPatientContent()),
         ],
       ),
     );
@@ -162,9 +170,8 @@ class _PatientPageState extends ConsumerState<PatientPage>
                 fontWeight: FontWeight.normal,
               ),
               // 调整Tab之间的间隔
-              labelPadding: EdgeInsets.symmetric(
-                horizontal: 10.w,
-              ), // 设置Tab之间的水平间隔
+              labelPadding: EdgeInsets.symmetric(horizontal: 10.w),
+              // 设置Tab之间的水平间隔
               // 使用标准Tab组件
               tabs: const [
                 Tab(text: '全部'),
@@ -194,18 +201,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
               ),
               IconButton(
                 onPressed: _handleSearch,
-                icon: Image.asset(
-                  'assets/icons/ic_pat_search.png',
-                  width: 20.w,
-                  height: 20.h,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.search,
-                      color: Colors.white,
-                      size: 20,
-                    );
-                  },
-                ),
+                icon: Icon(Icons.filter_alt, color: Colors.white, size: 20.w),
               ),
               SizedBox(width: 16.w),
             ],
@@ -272,12 +268,36 @@ class _PatientPageState extends ConsumerState<PatientPage>
       ),
       itemCount: patients.length,
       itemBuilder: (context, index) {
-        final patient = patients[index];
-        return PatientListItem(
-          patient: patient,
-          onTap: () => _handlePatientTap(patient),
-          onMeasureTap: () => _handleMeasureTap(patient),
-        );
+        switch (_currentIndex) {
+          case 0:
+            final patient = patients[index] as Patient;
+            return PatientListItem(
+              patient: patient,
+              onTap: () => _handlePatientTap(patient),
+              onMeasureTap: () => _handleMeasureTap(patient),
+            );
+          case 1:
+            final cgmPatient = patients[index] as CGMPatient;
+            return CGMPatientListItem(
+              patient: cgmPatient,
+              onTap: () => _handlePatientTap(cgmPatient),
+              onMeasureTap: () => _handleMeasureTap(cgmPatient),
+            );
+          case 2:
+            final insPatient = patients[index] as InsPatient;
+            return InsPatientListItem(
+              patient: insPatient,
+              onTap: () => _handlePatientTap(insPatient),
+              onMeasureTap: () => _handleMeasureTap(insPatient),
+            );
+          default:
+            final patient = patients[index] as Patient;
+            return PatientListItem(
+              patient: patient,
+              onTap: () => _handlePatientTap(patient),
+              onMeasureTap: () => _handleMeasureTap(patient),
+            );
+        }
       },
     );
   }
@@ -337,116 +357,217 @@ class _PatientPageState extends ConsumerState<PatientPage>
   Widget _buildSearchPanel() {
     if (!_isSearchOpen) return const SizedBox.shrink();
 
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 搜索输入框
-          Container(
-            padding: EdgeInsets.all(10.w),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: '姓名/床号/住院号',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                ),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-              ),
-              onSubmitted: (_) => _handleSearchSubmit(),
-            ),
+    return Stack(
+      children: [
+        // 半透明背景遮罩
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _isSearchOpen = false;
+              });
+            },
+            child: Container(color: Colors.black.withOpacity(0.5)),
           ),
-
-          // 科室和病区选择区域
-          Container(
-            height: 200.h,
-            child: Row(
+        ),
+        // 筛选组件主体
+        Positioned.fill(
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
               children: [
-                // 科室列表
-                Expanded(
-                  flex: 1,
-                  child: ListView.builder(
-                    itemCount: _departments.keys.length,
-                    itemBuilder: (context, index) {
-                      final department = _departments.keys.elementAt(index);
-                      final isSelected = _selectedDepartment == department;
-                      return GestureDetector(
-                        onTap: () => _handleDepartmentSelect(department),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 12.h,
-                          ),
-                          color: isSelected
-                              ? const Color(0xFFE6F4FF)
-                              : Colors.white,
-                          child: Text(
-                            department,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: isSelected
-                                  ? const Color(0xFF0073CF)
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                // 搜索输入框
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: '姓名/床号/住院号',
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: Color(0xFF999999),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(4.r),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF5F5F5),
+                    ),
+                    onSubmitted: (_) => _handleSearchSubmit(),
                   ),
                 ),
 
-                // 病区列表
+                // 科室和病区选择区域 - 改为Expanded以占据剩余空间
                 Expanded(
-                  flex: 2,
-                  child: ListView.builder(
-                    itemCount: _getCurrentWards().length,
-                    itemBuilder: (context, index) {
-                      final ward = _getCurrentWards()[index];
-                      final isSelected = _selectedWardId == ward;
-                      return GestureDetector(
-                        onTap: () => _handleWardSelect(ward),
+                  child: Row(
+                    children: [
+                      // 科室列表
+                      Expanded(
+                        flex: 1,
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 12.h,
+                          color: const Color(0xFFF5F5F5),
+                          child: ListView.builder(
+                            itemCount: _departments.keys.length,
+                            itemBuilder: (context, index) {
+                              final department = _departments.keys.elementAt(
+                                index,
+                              );
+                              final isSelected =
+                                  _selectedDepartment == department;
+                              return GestureDetector(
+                                onTap: () =>
+                                    _handleDepartmentSelect(department),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                    vertical: 14.h,
+                                  ),
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFFF5F5F5),
+                                  child: Text(
+                                    department,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: isSelected
+                                          ? const Color(0xFF0073CF)
+                                          : Colors.black,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          color: isSelected
-                              ? const Color(0xFFE6F4FF)
-                              : Colors.white,
+                        ),
+                      ),
+
+                      // 分割线
+                      Container(width: 1.w, color: const Color(0xFFE0E0E0)),
+
+                      // 病区列表
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          color: Colors.white,
+                          child: ListView.builder(
+                            itemCount: _getCurrentWards().length,
+                            itemBuilder: (context, index) {
+                              final ward = _getCurrentWards()[index];
+                              final isSelected = _selectedWardId == ward;
+                              return GestureDetector(
+                                onTap: () => _handleWardSelect(ward),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                    vertical: 14.h,
+                                  ),
+                                  color: isSelected
+                                      ? const Color(0xFFE6F4FF)
+                                      : Colors.white,
+                                  child: Text(
+                                    ward,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: isSelected
+                                          ? const Color(0xFF0073CF)
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 底部按钮区域
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  child: Row(
+                    children: [
+                      // 取消按钮
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isSearchOpen = false;
+                              _searchController.clear();
+                              _selectedWardId = null;
+                              _selectedDepartment = null;
+                              _loadPatients();
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            side: const BorderSide(color: Color(0xFF0073CF)),
+                          ),
                           child: Text(
-                            ward,
+                            '取消',
                             style: TextStyle(
                               fontSize: 14.sp,
-                              color: isSelected
-                                  ? const Color(0xFF0073CF)
-                                  : Colors.black,
+                              color: const Color(0xFF0073CF),
                             ),
                           ),
                         ),
-                      );
-                    },
+                      ),
+
+                      SizedBox(width: 12.w),
+
+                      // 确定按钮
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isSearchOpen = false;
+                            });
+                            _handleSearchSubmit();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            backgroundColor: const Color(0xFF0073CF),
+                          ),
+                          child: Text(
+                            '确定',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   /// 处理患者项点击
-  void _handlePatientTap(Patient patient) {
+  void _handlePatientTap(dynamic patient) {
     // 导航到患者详情页面
     print('患者详情: ${patient.patientName}');
   }
 
   /// 处理测量按钮点击
-  void _handleMeasureTap(Patient patient) {
+  void _handleMeasureTap(dynamic patient) {
     // 执行测量操作
     print('测量: ${patient.patientName}');
   }

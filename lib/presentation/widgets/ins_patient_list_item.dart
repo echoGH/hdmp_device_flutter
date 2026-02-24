@@ -1,16 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../data/models/patient.dart';
-import '../../core/constants/app_colors.dart';
+import '../../data/models/ins_patient.dart';
 
-/// 患者列表项Widget
-class PatientListItem extends StatelessWidget {
-  final Patient patient;
+/// 胰岛素泵患者列表项Widget
+class InsPatientListItem extends StatelessWidget {
+  final InsPatient patient;
   final VoidCallback? onTap;
   final VoidCallback? onMeasureTap;
 
-  const PatientListItem({
+  const InsPatientListItem({
     super.key,
     required this.patient,
     this.onTap,
@@ -20,7 +19,7 @@ class PatientListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 根据患者状态判断佩戴状态
-    bool isWearing = patient.isCgm == '1' && patient.testInfo != null;
+    bool isWearing = patient.isInsulinPump == '1' && patient.testInfo != null;
 
     return GestureDetector(
       onTap: onTap,
@@ -48,23 +47,20 @@ class PatientListItem extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                 decoration: BoxDecoration(
-                  color: isWearing
-                      ? const Color(0xFFE9F2FB)
-                      : const Color(0xFFF5F5F5),
+                  color: isWearing ? const Color(0xFFE8F9F8) : const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(4.r),
                 ),
                 child: Text(
                   isWearing ? '佩戴中' : '已完成',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: isWearing
-                        ? const Color(0xFF0073CF)
-                        : const Color(0xFF999999),
+                    color: isWearing ? const Color(0xFF21C4BB) : const Color(0xFF999999),
                   ),
                 ),
               ),
             ),
             SizedBox(height: 8.h),
+
             // 床号和姓名
             Row(
               children: [
@@ -80,25 +76,6 @@ class PatientListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // CGM标签
-                if (patient.isCgm == '1')
-                  Container(
-                    width: 23.w,
-                    height: 19.h,
-                    margin: EdgeInsets.only(left: 8.w),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE9F2FB), // 半透明白色背景
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Text(
-                      '动',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF0073CF),
-                      ), // 文字颜色：#0073CF
-                    ),
-                  ),
                 // 胰岛素泵标签
                 if (patient.isInsulinPump == '1')
                   Container(
@@ -107,7 +84,7 @@ class PatientListItem extends StatelessWidget {
                     margin: EdgeInsets.only(left: 8.w),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F9F8), // 半透明白色背景
+                      color: const Color(0xFFE8F9F8),
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
@@ -115,7 +92,7 @@ class PatientListItem extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: const Color(0xFF21C4BB),
-                      ), // 文字颜色：#21C4BB
+                      ),
                     ),
                   ),
               ],
@@ -146,7 +123,7 @@ class PatientListItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
 
-            // CGM趋势图
+            // 胰岛素泵数据趋势图
             SizedBox(height: 8.h),
             Container(
               height: 30.h,
@@ -161,7 +138,7 @@ class PatientListItem extends StatelessWidget {
             ),
             SizedBox(height: 2.h),
 
-            // CGM检测结果和状态
+            // 胰岛素泵检测结果和状态
             if (patient.testInfo != null) ...[
               SizedBox(height: 4.h),
               Row(
@@ -185,8 +162,8 @@ class PatientListItem extends StatelessWidget {
                   ),
                 ],
               ),
-            ] else if (patient.isCgm == '1') ...[
-              // CGM患者但无测试数据
+            ] else if (patient.isInsulinPump == '1') ...[
+              // 胰岛素泵患者但无测试数据
               SizedBox(height: 4.h),
               Text(
                 '初始化结束，未获取到...',
@@ -209,8 +186,7 @@ class PatientListItem extends StatelessWidget {
               ),
             ],
 
-            // 任务统计和测量按钮 - 仅在非CGM Tab页显示
-            // 这里可以根据需要添加条件判断是否显示
+            // 任务统计和测量按钮
             SizedBox(height: 6.h),
             Row(
               children: [
@@ -230,11 +206,11 @@ class PatientListItem extends StatelessWidget {
                     height: 24.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F4FF), // 半透明白色背景
-                      borderRadius: BorderRadius.circular(12.r), // 圆角半径12dp
+                      color: const Color(0xFFE6F4FF),
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
-                        color: const Color(0xFF0073CF), // 边框颜色：#0073CF
-                        width: 0.5.w, // 边框宽度：0.5dp
+                        color: const Color(0xFF0073CF),
+                        width: 0.5.w,
                       ),
                     ),
                     child: Text(
@@ -242,7 +218,7 @@ class PatientListItem extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: const Color(0xFF0073CF),
-                      ), // 文字颜色：#0073CF
+                      ),
                     ),
                   ),
                 ),
@@ -256,15 +232,14 @@ class PatientListItem extends StatelessWidget {
 
   /// 生成模拟的趋势数据
   List<double> _generateTrendData() {
-    // 模拟CGM数据趋势
+    // 模拟胰岛素泵数据趋势
     final List<double> data = [];
     final Random random = Random();
-
+    
     // 根据患者状态生成不同的数据
     if (patient.testInfo != null && patient.testInfo!.aimStatus != null) {
-      double baseValue =
-          double.tryParse(patient.testInfo!.testResult ?? '10') ?? 10;
-
+      double baseValue = double.tryParse(patient.testInfo!.testResult ?? '10') ?? 10;
+      
       for (int i = 0; i < 10; i++) {
         // 生成围绕基础值波动的数据
         double value = baseValue + (random.nextDouble() - 0.5) * 5;
@@ -276,7 +251,7 @@ class PatientListItem extends StatelessWidget {
         data.add(random.nextDouble() * 10 + 5);
       }
     }
-
+    
     return data;
   }
 
@@ -301,11 +276,7 @@ class _TrendChartPainter extends CustomPainter {
   final Color lineColor;
   final bool isEmpty;
 
-  _TrendChartPainter({
-    required this.data,
-    required this.lineColor,
-    this.isEmpty = false,
-  });
+  _TrendChartPainter({required this.data, required this.lineColor, this.isEmpty = false});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -328,8 +299,7 @@ class _TrendChartPainter extends CustomPainter {
 
     for (int i = 0; i < data.length; i++) {
       final double x = i * (size.width / (data.length - 1));
-      final double y =
-          size.height - ((data[i] - minValue) / range) * size.height;
+      final double y = size.height - ((data[i] - minValue) / range) * size.height;
 
       if (i == 0) {
         path.moveTo(x, y);
