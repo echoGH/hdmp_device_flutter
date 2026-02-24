@@ -1,8 +1,6 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/patient.dart';
-import '../../core/constants/app_colors.dart';
 
 /// 患者列表项Widget
 class PatientListItem extends StatelessWidget {
@@ -10,18 +8,10 @@ class PatientListItem extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onMeasureTap;
 
-  const PatientListItem({
-    super.key,
-    required this.patient,
-    this.onTap,
-    this.onMeasureTap,
-  });
+  const PatientListItem({super.key, required this.patient, this.onTap, this.onMeasureTap});
 
   @override
   Widget build(BuildContext context) {
-    // 根据患者状态判断佩戴状态
-    bool isWearing = patient.isCgm == '1' && patient.testInfo != null;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -30,52 +20,18 @@ class PatientListItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 1, blurRadius: 4, offset: const Offset(0, 2))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 佩戴状态标签
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: isWearing
-                      ? const Color(0xFFE9F2FB)
-                      : const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  isWearing ? '佩戴中' : '已完成',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: isWearing
-                        ? const Color(0xFF0073CF)
-                        : const Color(0xFF999999),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 8.h),
             // 床号和姓名
             Row(
               children: [
                 Expanded(
                   child: Text(
                     '${patient.bedCode} ${patient.patientName}',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF17222D),
-                    ),
+                    style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: const Color(0xFF17222D)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -93,10 +49,7 @@ class PatientListItem extends StatelessWidget {
                     ),
                     child: Text(
                       '动',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF0073CF),
-                      ), // 文字颜色：#0073CF
+                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF0073CF)), // 文字颜色：#0073CF
                     ),
                   ),
                 // 胰岛素泵标签
@@ -112,10 +65,7 @@ class PatientListItem extends StatelessWidget {
                     ),
                     child: Text(
                       '泵',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF21C4BB),
-                      ), // 文字颜色：#21C4BB
+                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF21C4BB)), // 文字颜色：#21C4BB
                     ),
                   ),
               ],
@@ -127,10 +77,7 @@ class PatientListItem extends StatelessWidget {
               children: [
                 Text(
                   '${patient.sexDesc ?? '未知'} ${patient.ageDesc ?? ''}',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: const Color(0xFF48505D),
-                  ),
+                  style: TextStyle(fontSize: 13.sp, color: const Color(0xFF48505D)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -146,81 +93,36 @@ class PatientListItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
 
-            // CGM趋势图
-            SizedBox(height: 8.h),
-            Container(
-              height: 30.h,
-              width: double.infinity,
-              child: CustomPaint(
-                painter: _TrendChartPainter(
-                  data: _generateTrendData(),
-                  lineColor: _getBgColor(patient.testInfo?.aimStatus),
-                  isEmpty: patient.testInfo == null,
-                ),
-              ),
-            ),
-            SizedBox(height: 2.h),
-
-            // CGM检测结果和状态
+            // 检测结果和时间
             if (patient.testInfo != null) ...[
-              SizedBox(height: 4.h),
+              SizedBox(height: 6.h),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     patient.testInfo!.testResult ?? '',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                      color: _getBgColor(patient.testInfo!.aimStatus),
-                    ),
+                    style: TextStyle(fontSize: 13.sp, color: _getBgColor(patient.testInfo!.aimStatus)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  SizedBox(width: 5.w),
                   Text(
-                    // 模拟时间显示，实际应根据testTime计算
-                    '${Random().nextInt(20) + 1}天前',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: const Color(0xFF999999),
-                    ),
+                    patient.testInfo!.timeCodeName ?? '',
+                    style: TextStyle(fontSize: 13.sp, color: const Color(0xFF48505D)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
-            ] else if (patient.isCgm == '1') ...[
-              // CGM患者但无测试数据
-              SizedBox(height: 4.h),
-              Text(
-                '初始化结束，未获取到...',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: const Color(0xFF999999),
-                ),
-              ),
             ],
 
-            // 监测状态
-            if (patient.testInfo != null) ...[
-              SizedBox(height: 2.h),
-              Text(
-                '已完成监测',
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: const Color(0xFF999999),
-                ),
-              ),
-            ],
-
-            // 任务统计和测量按钮 - 仅在非CGM Tab页显示
-            // 这里可以根据需要添加条件判断是否显示
+            // 任务统计和测量按钮
             SizedBox(height: 6.h),
             Row(
               children: [
                 Expanded(
                   child: Text(
                     '任务：${patient.bgmPlanFinishNum ?? '0'}/${patient.bgmPlanNum ?? '0'}',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: const Color(0xFF48505D),
-                    ),
+                    style: TextStyle(fontSize: 13.sp, color: const Color(0xFF48505D)),
                   ),
                 ),
                 GestureDetector(
@@ -239,10 +141,7 @@ class PatientListItem extends StatelessWidget {
                     ),
                     child: Text(
                       '测量',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF0073CF),
-                      ), // 文字颜色：#0073CF
+                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF0073CF)), // 文字颜色：#0073CF
                     ),
                   ),
                 ),
@@ -252,32 +151,6 @@ class PatientListItem extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// 生成模拟的趋势数据
-  List<double> _generateTrendData() {
-    // 模拟CGM数据趋势
-    final List<double> data = [];
-    final Random random = Random();
-
-    // 根据患者状态生成不同的数据
-    if (patient.testInfo != null && patient.testInfo!.aimStatus != null) {
-      double baseValue =
-          double.tryParse(patient.testInfo!.testResult ?? '10') ?? 10;
-
-      for (int i = 0; i < 10; i++) {
-        // 生成围绕基础值波动的数据
-        double value = baseValue + (random.nextDouble() - 0.5) * 5;
-        data.add(value);
-      }
-    } else {
-      // 如果没有测试数据，生成随机数据
-      for (int i = 0; i < 10; i++) {
-        data.add(random.nextDouble() * 10 + 5);
-      }
-    }
-
-    return data;
   }
 
   /// 根据血糖状态获取颜色
@@ -292,57 +165,5 @@ class PatientListItem extends StatelessWidget {
       default:
         return const Color(0xFF48505D);
     }
-  }
-}
-
-/// 绘制趋势图的自定义画家
-class _TrendChartPainter extends CustomPainter {
-  final List<double> data;
-  final Color lineColor;
-  final bool isEmpty;
-
-  _TrendChartPainter({
-    required this.data,
-    required this.lineColor,
-    this.isEmpty = false,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (isEmpty || data.isEmpty) {
-      return;
-    }
-
-    final paint = Paint()
-      ..color = lineColor
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final double minValue = data.reduce((a, b) => a < b ? a : b);
-    final double maxValue = data.reduce((a, b) => a > b ? a : b);
-    final double range = maxValue - minValue;
-
-    final path = Path();
-
-    for (int i = 0; i < data.length; i++) {
-      final double x = i * (size.width / (data.length - 1));
-      final double y =
-          size.height - ((data[i] - minValue) / range) * size.height;
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _TrendChartPainter oldDelegate) {
-    return oldDelegate.data != data || oldDelegate.lineColor != lineColor;
   }
 }
