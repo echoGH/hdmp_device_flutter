@@ -3,6 +3,8 @@ import 'package:retrofit/retrofit.dart';
 import '../../models/cgm_patient.dart';
 import '../../models/ins_patient.dart';
 import '../../models/patient.dart';
+import '../entity/request/query_cgm_patient_request.dart';
+import '../entity/request/query_ins_patient_request.dart';
 import '../entity/request/query_patient_request.dart';
 import '../entity/response/base_response.dart';
 
@@ -17,11 +19,15 @@ abstract class PatientService {
   @POST('/framework/phoneappbgpat/getPatInfo')
   Future<BaseResponse<PatientPageList>> getPatientList(@Body() QueryPatientRequest request);
 
-  /// 获取CGM患者列表
+  /// 获取使用中CGM患者列表
   @POST('/framework/phoneappcommon/getCgmUsePatListWithPage')
-  Future<BaseResponse<CGMPatientPageList>> getCgmPatientList(@Body() QueryPatientRequest request);
+  Future<BaseResponse<CGMPatientPageList>> getCgmUsePatientList(@Body() QueryCGMPatientRequest request);
+
+  /// 获取已完成CGM患者列表
+  @POST('/framework/phoneappcommon/getCgmFinishPatListWithPage')
+  Future<BaseResponse<CGMPatientPageList>> getCgmFinishPatientList(@Body() QueryCGMPatientRequest request);
 
   /// 获取胰岛素泵患者列表
-  @POST('/framework/phoneappcommon/getCgmFinishPatListWithPage')
-  Future<BaseResponse<InsPatientPageList>> getInsulinPumpPatientList(@Body() QueryPatientRequest request);
+  @POST('/framework/phoneappinsulinpump/getInsulinPumpRecordCardWithPage')
+  Future<BaseResponse<InsPatientPageList>> getInsulinPumpPatientList(@Body() QueryInsPatientRequest request);
 }

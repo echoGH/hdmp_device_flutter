@@ -5,6 +5,8 @@ import '../../core/network/dio_client.dart';
 import '../../data/models/cgm_patient.dart';
 import '../../data/models/patient.dart';
 import '../../data/remote/api/patient_service.dart';
+import '../../data/remote/entity/request/query_cgm_patient_request.dart';
+import '../../data/remote/entity/request/query_ins_patient_request.dart';
 import '../../data/remote/entity/request/query_patient_request.dart';
 
 /// 患者状态
@@ -61,15 +63,16 @@ class PatientNotifier extends Notifier<PatientStateModel> {
       // 并行获取三个列表
       final results = await Future.wait([
         _patientService.getPatientList(QueryPatientRequest(customerActiveCode: customerActiveCode, searchKeyword: searchKeyword, wardIdList: wardIdList)),
-        _patientService.getCgmPatientList(QueryPatientRequest(customerActiveCode: customerActiveCode, searchKeyword: searchKeyword, wardIdList: wardIdList)),
-        _patientService.getInsulinPumpPatientList(QueryPatientRequest(customerActiveCode: customerActiveCode, searchKeyword: searchKeyword, wardIdList: wardIdList)),
+        _patientService.getCgmUsePatientList(QueryCGMPatientRequest(customerActiveCode: customerActiveCode, testHour: "4", wardIdList: wardIdList)),
+        _patientService.getCgmFinishPatientList(QueryCGMPatientRequest(customerActiveCode: customerActiveCode, testHour: "4", wardIdList: wardIdList)),
+        _patientService.getInsulinPumpPatientList(QueryInsPatientRequest(customerActiveCode: customerActiveCode, testHour: "4")),
       ]);
 
       state = state.copyWith(
         isLoading: false,
         allPatients: (results[0].data as PatientPageList?)?.list ?? [],
         cgmPatients: (results[1].data as CGMPatientPageList?)?.list ?? [],
-        insulinPumpPatients: (results[2].data as InsPatientPageList?)?.list ?? [],
+        insulinPumpPatients: (results[3].data as InsPatientPageList?)?.list ?? [],
       );
     } catch (e) {
       debugPrint('加载患者列表失败: $e');

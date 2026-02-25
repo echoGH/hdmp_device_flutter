@@ -113,7 +113,6 @@ class CGMPatientListItem extends StatelessWidget {
               ],
             ),
             // 科室病区
-            SizedBox(height: 14.h),
             Text(
               '${patient.deptName ?? ''} ${patient.wardName ?? ''}',
               style: TextStyle(fontSize: 13.sp, color: const Color(0xFF48505D)),

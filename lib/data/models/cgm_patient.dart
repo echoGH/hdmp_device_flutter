@@ -19,10 +19,6 @@ class CGMPatient {
 
   final String? isRemind;
 
-  final String? low;
-
-  final String? high;
-
   final String? deviceSn;
 
   final String? deviceType;
@@ -37,9 +33,9 @@ class CGMPatient {
 
   final String? cgmShowStatus;
 
-  final String? hosStatus;
+  final String? bluetoothStatus;
 
-  final String? hosLeaveTime;
+  final String? hosStatus;
 
   final String? endTime;
 
@@ -56,13 +52,14 @@ class CGMPatient {
   /// 年龄
   final String? patientAge;
 
-  final String? allNum;
+  /// 总测量次数
+  final int? allNum;
 
-  final List<String>? testList;
+  final List<dynamic>? testList;
 
-  final List<String>? testSegmentList;
+  final List<dynamic>? testSegmentList;
 
-  final List<String>? testSegmentMinList;
+  final List<dynamic>? testSegmentMinList;
 
   final String? lastTestResult;
 
@@ -70,39 +67,21 @@ class CGMPatient {
 
   final String? lastTestTimeDesc;
 
-  final String? lastSerialNumber;
+  /// 最新血糖序列号
+  final int? lastSerialNumber;
 
   final String? lastAimStatus;
 
-  final String? firstTestResult;
-
-  final String? firstTestTime;
-
-  final String? firstAimStatus;
-
-  final String? testTrend;
+  /// 测量趋势 1, "维持不变" (2, "缓慢下降"), (3, "快速下降"), (4, "急速下降"),(5, "缓慢上升"), (6, "快速上升"), (7, "急速上升")
+  final int? testTrend;
 
   final String? remainderTimeDesc;
-
-  final String? remainderTimeDay;
-
-  final String? remainderTimeHour;
-
-  final String? remainderTimeMinute;
 
   final String? doctorInChargeName;
 
   final String? deptName;
 
   final String? wardName;
-
-  final String? gmiPer;
-
-  final String? tirPer;
-
-  final String? tarPer;
-
-  final String? tbrPer;
 
   final String? completeTime;
 
@@ -116,23 +95,11 @@ class CGMPatient {
 
   final String? initRemainderMinute;
 
-  final List<String>? cgmSegmentDetailList;
+  final List<dynamic>? cgmSegmentDetailList;
 
   final String? transferStatus;
 
   final String? bindTime;
-
-  final String? realReminderTime;
-
-  final bool? qrCodeButton;
-
-  final bool? transferButton;
-
-  final bool? retryButton;
-
-  final String? commonMinValue;
-
-  final String? commonMaxValue;
 
   final int? cgmDay;
 
@@ -158,31 +125,19 @@ class CGMPatient {
 
   final String? isCgm;
 
-  final String? bgmTests;
-
-  final String? errorMsg;
-
-  final String? errorMsgJson;
-
-  final String? printStatus;
-
-  final bool? isFeedBack;
-
   CGMPatient({
     required this.id,
     required this.patientId,
     this.isFollow,
     this.isRemind,
-    this.low,
-    this.high,
     this.deviceSn,
     this.deviceType,
     this.admAge,
     this.admDate,
     this.cgmStatus,
     this.cgmShowStatus,
+    this.bluetoothStatus,
     this.hosStatus,
-    this.hosLeaveTime,
     this.endTime,
     this.patientSex,
     this.bedNum,
@@ -202,21 +157,11 @@ class CGMPatient {
     this.lastTestTimeDesc,
     this.lastSerialNumber,
     this.lastAimStatus,
-    this.firstTestResult,
-    this.firstTestTime,
-    this.firstAimStatus,
     this.testTrend,
     this.remainderTimeDesc,
-    this.remainderTimeDay,
-    this.remainderTimeHour,
-    this.remainderTimeMinute,
     this.doctorInChargeName,
     this.deptName,
     this.wardName,
-    this.gmiPer,
-    this.tirPer,
-    this.tarPer,
-    this.tbrPer,
     this.completeTime,
     this.beginTime,
     this.deptId,
@@ -226,12 +171,6 @@ class CGMPatient {
     this.cgmSegmentDetailList,
     this.transferStatus,
     this.bindTime,
-    this.realReminderTime,
-    this.qrCodeButton,
-    this.transferButton,
-    this.retryButton,
-    this.commonMinValue,
-    this.commonMaxValue,
     this.cgmDay,
     this.diabetesType,
     this.increMinute,
@@ -244,11 +183,6 @@ class CGMPatient {
     this.patientAgeDesc,
     this.isInsulinPump,
     this.isCgm,
-    this.bgmTests,
-    this.errorMsg,
-    this.errorMsgJson,
-    this.printStatus,
-    this.isFeedBack,
   });
 
   factory CGMPatient.fromJson(Map<String, dynamic> json) {
@@ -256,25 +190,23 @@ class CGMPatient {
       id: json['id'] as String,
       patientId: json['patientId'] as String,
       isFollow: json['isFollow'] as String,
-      low: json['low'] as String?,
-      high: json['high'] as String?,
       deviceSn: json['deviceSn'] as String?,
       deviceType: json['deviceType'] as String?,
       admAge: json['admAge'] as String?,
       admDate: json['admDate'] as String?,
       cgmStatus: json['cgmStatus'] as String?,
       cgmShowStatus: json['cgmShowStatus'] as String?,
+      bluetoothStatus: json['bluetoothStatus'] as String?,
       hosStatus: json['hosStatus'] as String?,
-      hosLeaveTime: json['hosLeaveTime'] as String?,
       endTime: json['endTime'] as String?,
       patientSex: json['patientSex'] as String?,
       bedNum: json['bedNum'] as String?,
       bedPriority: json['bedPriority'] as int?,
       patientAge: json['patientAge'] as String?,
-      allNum: json['allNum'] as String?,
-      testList: json['testList'] != null ? json['testList'] as List<String> : [],
-      testSegmentList: json['testSegmentList'] != null ? json['testSegmentList'] as List<String> : [],
-      testSegmentMinList: json['testSegmentMinList'] != null ? json['testSegmentMinList'] as List<String> : [],
+      allNum: json['allNum'] as int?,
+      testList: json['testList'] != null ? json['testList'] as List<dynamic> : [],
+      testSegmentList: json['testSegmentList'] != null ? json['testSegmentList'] as List<dynamic> : [],
+      testSegmentMinList: json['testSegmentMinList'] != null ? json['testSegmentMinList'] as List<dynamic> : [],
       lastTestResult: json['lastTestResult'] as String?,
       lastTestTime: json['lastTestTime'] as String?,
       patientName: json['patientName'] as String?,
@@ -283,38 +215,22 @@ class CGMPatient {
       customerId: json['customerId'] as int?,
       bedId: json['bedId'] as String?,
       lastTestTimeDesc: json['lastTestTimeDesc'] as String?,
-      lastSerialNumber: json['lastSerialNumber'] as String?,
+      lastSerialNumber: json['lastSerialNumber'] as int?,
       lastAimStatus: json['lastAimStatus'] as String?,
-      firstTestResult: json['firstTestResult'] as String?,
-      firstTestTime: json['firstTestTime'] as String?,
-      firstAimStatus: json['firstAimStatus'] as String?,
-      testTrend: json['testTrend'] as String?,
+      testTrend: json['testTrend'] as int?,
       remainderTimeDesc: json['remainderTimeDesc'] as String?,
-      remainderTimeDay: json['remainderTimeDay'] as String?,
-      remainderTimeHour: json['remainderTimeHour'] as String?,
-      remainderTimeMinute: json['remainderTimeMinute'] as String?,
       doctorInChargeName: json['doctorInChargeName'] as String?,
       deptName: json['deptName'] as String?,
       wardName: json['wardName'] as String?,
-      gmiPer: json['gmiPer'] as String?,
-      tirPer: json['tirPer'] as String?,
-      tarPer: json['tarPer'] as String?,
-      tbrPer: json['tbrPer'] as String?,
       completeTime: json['completeTime'] as String?,
       beginTime: json['beginTime'] as String?,
       deptId: json['deptId'] as String?,
       wardId: json['wardId'] as String?,
       createTime: json['createTime'] as String?,
       initRemainderMinute: json['initRemainderMinute'] as String?,
-      cgmSegmentDetailList: json['cgmSegmentDetailList'] != null ? json['cgmSegmentDetailList'] as List<String> : [],
+      cgmSegmentDetailList: json['cgmSegmentDetailList'] != null ? json['cgmSegmentDetailList'] as List<int> : [],
       transferStatus: json['transferStatus'] as String?,
       bindTime: json['bindTime'] as String?,
-      realReminderTime: json['realReminderTime'] as String?,
-      qrCodeButton: json['qrCodeButton'] as bool?,
-      transferButton: json['transferButton'] as bool?,
-      retryButton: json['retryButton'] as bool?,
-      commonMinValue: json['commonMinValue'] as String?,
-      commonMaxValue: json['commonMaxValue'] as String?,
       cgmDay: json['cgmDay'] as int?,
       diabetesType: json['diabetesType'] as String?,
       increMinute: json['increMinute'] as int?,
@@ -327,11 +243,6 @@ class CGMPatient {
       patientAgeDesc: json['patientAgeDesc'] as String?,
       isInsulinPump: json['isInsulinPump'] as String?,
       isCgm: json['isCgm'] as String?,
-      bgmTests: json['bgmTests'] as String?,
-      errorMsg: json['errorMsg'] as String?,
-      errorMsgJson: json['errorMsgJson'] as String?,
-      printStatus: json['printStatus'] as String?,
-      isFeedBack: json['isFeedBack'] as bool?,
     );
   }
 
@@ -340,16 +251,14 @@ class CGMPatient {
       'id': id,
       'patientId': patientId,
       'isFollow': isFollow,
-      'low': low,
-      'high': high,
       'deviceSn': deviceSn,
       'deviceType': deviceType,
       'admAge': admAge,
       'admDate': admDate,
       'cgmStatus': cgmStatus,
       'cgmShowStatus': cgmShowStatus,
+      'bluetoothStatus': bluetoothStatus,
       'hosStatus': hosStatus,
-      'hosLeaveTime': hosLeaveTime,
       'endTime': endTime,
       'patientSex': patientSex,
       'bedNum': bedNum,
@@ -369,21 +278,11 @@ class CGMPatient {
       'lastTestTimeDesc': lastTestTimeDesc,
       'lastSerialNumber': lastSerialNumber,
       'lastAimStatus': lastAimStatus,
-      'firstTestResult': firstTestResult,
-      'firstTestTime': firstTestTime,
-      'firstAimStatus': firstAimStatus,
       'testTrend': testTrend,
       'remainderTimeDesc': remainderTimeDesc,
-      'remainderTimeDay': remainderTimeDay,
-      'remainderTimeHour': remainderTimeHour,
-      'remainderTimeMinute': remainderTimeMinute,
       'doctorInChargeName': doctorInChargeName,
       'deptName': deptName,
       'wardName': wardName,
-      'gmiPer': gmiPer,
-      'tirPer': tirPer,
-      'tarPer': tarPer,
-      'tbrPer': tbrPer,
       'completeTime': completeTime,
       'beginTime': beginTime,
       'deptId': deptId,
@@ -393,12 +292,6 @@ class CGMPatient {
       'cgmSegmentDetailList': cgmSegmentDetailList,
       'transferStatus': transferStatus,
       'bindTime': bindTime,
-      'realReminderTime': realReminderTime,
-      'qrCodeButton': qrCodeButton,
-      'transferButton': transferButton,
-      'retryButton': retryButton,
-      'commonMinValue': commonMinValue,
-      'commonMaxValue': commonMaxValue,
       'cgmDay': cgmDay,
       'diabetesType': diabetesType,
       'increMinute': increMinute,
@@ -411,11 +304,6 @@ class CGMPatient {
       'patientAgeDesc': patientAgeDesc,
       'isInsulinPump': isInsulinPump,
       'isCgm': isCgm,
-      'bgmTests': bgmTests,
-      'errorMsg': errorMsg,
-      'errorMsgJson': errorMsgJson,
-      'printStatus': printStatus,
-      'isFeedBack': isFeedBack,
     };
   }
 }

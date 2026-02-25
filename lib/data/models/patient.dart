@@ -48,13 +48,13 @@ class Patient {
   /// 是否胰岛素泵患者 (1:是, 0:否)
   final String? isInsulinPump;
 
-  /// 血糖计划数
+  /// 血糖任务数
   final String? bgmPlanNum;
 
-  /// 血糖完成数
+  /// 已执行血糖任务数
   final String? bgmPlanFinishNum;
 
-  /// 最近检测信息
+  /// 最新血糖记录
   final TestInfo? testInfo;
 
   Patient({
