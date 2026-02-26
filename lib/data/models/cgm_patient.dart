@@ -55,11 +55,11 @@ class CGMPatient {
   /// 总测量次数
   final int? allNum;
 
-  final List<dynamic>? testList;
+  final List<TestDataInfo>? testList;
 
-  final List<dynamic>? testSegmentList;
+  final List<TestDataInfo>? testSegmentList;
 
-  final List<dynamic>? testSegmentMinList;
+  final List<TestDataInfo>? testSegmentMinList;
 
   final String? lastTestResult;
 
@@ -204,9 +204,9 @@ class CGMPatient {
       bedPriority: json['bedPriority'] as int?,
       patientAge: json['patientAge'] as String?,
       allNum: json['allNum'] as int?,
-      testList: json['testList'] != null ? json['testList'] as List<dynamic> : [],
-      testSegmentList: json['testSegmentList'] != null ? json['testSegmentList'] as List<dynamic> : [],
-      testSegmentMinList: json['testSegmentMinList'] != null ? json['testSegmentMinList'] as List<dynamic> : [],
+      testList: _convertToTestDataList(json['testList']),
+      testSegmentList: _convertToTestDataList(json['testSegmentList']),
+      testSegmentMinList: _convertToTestDataList(json['testSegmentMinList']),
       lastTestResult: json['lastTestResult'] as String?,
       lastTestTime: json['lastTestTime'] as String?,
       patientName: json['patientName'] as String?,
@@ -228,7 +228,7 @@ class CGMPatient {
       wardId: json['wardId'] as String?,
       createTime: json['createTime'] as String?,
       initRemainderMinute: json['initRemainderMinute'] as String?,
-      cgmSegmentDetailList: json['cgmSegmentDetailList'] != null ? json['cgmSegmentDetailList'] as List<int> : [],
+      cgmSegmentDetailList: json['cgmSegmentDetailList'] != null ? json['cgmSegmentDetailList'] as List<dynamic> : [],
       transferStatus: json['transferStatus'] as String?,
       bindTime: json['bindTime'] as String?,
       cgmDay: json['cgmDay'] as int?,
@@ -244,6 +244,37 @@ class CGMPatient {
       isInsulinPump: json['isInsulinPump'] as String?,
       isCgm: json['isCgm'] as String?,
     );
+  }
+
+  /// 辅助方法：将不同类型的测试数据转换为TestDataInfo列表
+  static List<TestDataInfo> _convertToTestDataList(dynamic data) {
+    final List<TestDataInfo> result = [];
+
+    if (data == null) {
+      return result;
+    }
+
+    try {
+      // 情况1：data是List<dynamic>，每个元素是Map<String, dynamic>
+      if (data is List<dynamic>) {
+        for (final item in data) {
+          if (item is Map<String, dynamic>) {
+            result.add(TestDataInfo.fromJson(item));
+          }
+        }
+      }
+      // 情况2：data是Map<String, dynamic>，需要特殊处理
+      else if (data is Map<String, dynamic>) {
+        // 可能是直接的TestDataInfo对象
+        result.add(TestDataInfo.fromJson(data));
+      }
+    } catch (e) {
+      print('转换测试数据失败: $e');
+      // 如果转换失败，返回空列表
+      return result;
+    }
+
+    return result;
   }
 
   Map<String, dynamic> toJson() {
@@ -305,6 +336,21 @@ class CGMPatient {
       'isInsulinPump': isInsulinPump,
       'isCgm': isCgm,
     };
+  }
+}
+
+/// 检测数据信息
+class TestDataInfo {
+  /// 检测时间
+  final String? testTime;
+
+  /// 检测结果
+  final String? testResult;
+
+  TestDataInfo({this.testTime, this.testResult});
+
+  factory TestDataInfo.fromJson(Map<String, dynamic> json) {
+    return TestDataInfo(testTime: json['testTime'] as String?, testResult: json['testResult'] as String?);
   }
 }
 
