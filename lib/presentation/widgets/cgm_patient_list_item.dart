@@ -18,9 +18,6 @@ class CGMPatientListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 根据患者状态判断佩戴状态
-    bool isWearing = patient.cgmStatus == '1';
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -41,26 +38,6 @@ class CGMPatientListItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 佩戴状态标签
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: isWearing ? const Color(0xFFE9F2FB) : const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  isWearing ? '佩戴中' : '已完成',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: isWearing ? const Color(0xFF0073CF) : const Color(0xFF999999),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 8.h),
-
             // 床号和姓名
             Row(
               children: [
@@ -76,24 +53,6 @@ class CGMPatientListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // CGM标签
-                Container(
-                  width: 23.w,
-                  height: 19.h,
-                  margin: EdgeInsets.only(left: 8.w),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE9F2FB),
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: Text(
-                    '动',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: const Color(0xFF0073CF),
-                    ),
-                  ),
-                ),
               ],
             ),
 
@@ -102,7 +61,7 @@ class CGMPatientListItem extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '${patient.patientSex ?? '未知'} ${patient.patientAge ?? ''}',
+                  patient.patientAge ?? '',
                   style: TextStyle(
                     fontSize: 13.sp,
                     color: const Color(0xFF48505D),
@@ -110,30 +69,16 @@ class CGMPatientListItem extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                // 科室病区
+                Text(
+                  '${patient.deptName ?? ''} ${patient.wardName ?? ''}',
+                  style: TextStyle(fontSize: 13.sp, color: const Color(0xFF48505D)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
-            // 科室病区
-            Text(
-              '${patient.deptName ?? ''} ${patient.wardName ?? ''}',
-              style: TextStyle(fontSize: 13.sp, color: const Color(0xFF48505D)),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            // CGM趋势图
-            SizedBox(height: 8.h),
-            SizedBox(
-              height: 30.h,
-              width: double.infinity,
-              child: CustomPaint(
-                painter: _TrendChartPainter(
-                  data: _generateTrendData(),
-                  lineColor: _getBgColor(patient.cgmStatus),
-                  isEmpty: false,
-                ),
-              ),
-            ),
             SizedBox(height: 4.h),
-
             // CGM检测结果和状态
             if (patient.cgmStatus != null) ...[
               Row(
@@ -167,10 +112,22 @@ class CGMPatientListItem extends StatelessWidget {
                 ),
               ),
             ],
-
+            // CGM趋势图
+            SizedBox(height: 8.h),
+            SizedBox(
+              height: 30.h,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _TrendChartPainter(
+                  data: _generateTrendData(),
+                  lineColor: _getBgColor(patient.cgmStatus),
+                  isEmpty: false,
+                ),
+              ),
+            ),
             // 监测状态
             if (patient.cgmStatus != null) ...[
-              SizedBox(height: 2.h),
+              SizedBox(height: 8.h),
               Text(
                 '已完成监测',
                 style: TextStyle(

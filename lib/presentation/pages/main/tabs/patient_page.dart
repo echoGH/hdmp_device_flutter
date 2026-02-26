@@ -19,8 +19,7 @@ class PatientPage extends ConsumerStatefulWidget {
   ConsumerState<PatientPage> createState() => _PatientPageState();
 }
 
-class _PatientPageState extends ConsumerState<PatientPage>
-    with TickerProviderStateMixin {
+class _PatientPageState extends ConsumerState<PatientPage> with TickerProviderStateMixin {
   late TabController _tabController;
   int _currentIndex = 0;
 
@@ -42,9 +41,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
 
   // 当前选中的科室
   List<String> _getCurrentWards() {
-    return _selectedDepartment != null
-        ? _departments[_selectedDepartment] ?? []
-        : [];
+    return _selectedDepartment != null ? _departments[_selectedDepartment] ?? [] : [];
   }
 
   @override
@@ -78,10 +75,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
   }
 
   /// 加载患者数据
-  Future<void> _loadPatients({
-    String? searchKeyword,
-    List<String>? wardIdList,
-  }) async {
+  Future<void> _loadPatients({String? searchKeyword, List<String>? wardIdList}) async {
     final prefs = await SharedPreferences.getInstance();
     final savedCustomerId = prefs.getString(AppConstants.keyCustomerId);
 
@@ -94,8 +88,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
     await patientNotifier.loadPatients(
       customerActiveCode: customerActiveCode,
       searchKeyword: searchKeyword ?? _searchController.text.trim(),
-      wardIdList:
-          wardIdList ?? (_selectedWardId != null ? [_selectedWardId!] : null),
+      wardIdList: wardIdList ?? (_selectedWardId != null ? [_selectedWardId!] : null),
     );
   }
 
@@ -106,7 +99,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
       case 0:
         return patientState.allPatients;
       case 1:
-        return patientState.cgmPatients;
+        return patientState.cgmSubTab == 0 ? patientState.cgmUsePatients : patientState.cgmFinishPatients;
       case 2:
         return patientState.insulinPumpPatients;
       default:
@@ -144,70 +137,185 @@ class _PatientPageState extends ConsumerState<PatientPage>
 
   /// Tab导航栏和操作按钮同一行
   Widget _buildTabBarWithActions() {
-    return Container(
-      height: 42.h,
-      color: const Color(0xFF0073CF),
-      child: Row(
-        children: [
-          // Tab导航栏，占据剩余空间
-          Expanded(
-            child: TabBar(
-              controller: _tabController,
-              // 自定义指示器，确保位于文字下方且不遮挡
-              indicator: const UnderlineTabIndicator(
-                borderSide: BorderSide(color: Colors.white, width: 2),
-                insets: EdgeInsets.symmetric(horizontal: 5.0), // 调整指示器宽度
-              ),
-              // 使用默认的指示器位置，避免遮挡文字
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              labelStyle: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.normal,
-              ),
-              unselectedLabelStyle: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.normal,
-              ),
-              // 调整Tab之间的间隔
-              labelPadding: EdgeInsets.symmetric(horizontal: 10.w),
-              // 设置Tab之间的水平间隔
-              // 使用标准Tab组件
-              tabs: const [
-                Tab(text: '全部'),
-                Tab(text: 'CGM'),
-                Tab(text: '胰岛素泵'),
-              ],
-            ),
-          ),
-          // 右侧操作按钮
-          Row(
+    final patientState = ref.watch(patientProvider);
+    final patientNotifier = ref.read(patientProvider.notifier);
+
+    return Column(
+      children: [
+        Container(
+          height: 42.h,
+          color: const Color(0xFF0073CF),
+          child: Row(
             children: [
-              // 根据Android实现，始终显示扫码图标
-              IconButton(
-                onPressed: _handleScan,
-                icon: Image.asset(
-                  'assets/icons/ic_pat_scan.png',
-                  width: 20.w,
-                  height: 20.h,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(
-                      Icons.qr_code_scanner,
-                      color: Colors.white,
-                      size: 20.w,
-                    );
+              // Tab导航栏，占据剩余空间
+              Expanded(
+                child: TabBar(
+                  controller: _tabController,
+                  // 自定义指示器，确保位于文字下方且不遮挡
+                  indicator: const UnderlineTabIndicator(
+                    borderSide: BorderSide(color: Colors.white, width: 2),
+                    insets: EdgeInsets.symmetric(horizontal: 5.0), // 调整指示器宽度
+                  ),
+                  // 使用默认的指示器位置，避免遮挡文字
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white70,
+                  labelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.normal),
+                  unselectedLabelStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.normal),
+                  // 调整Tab之间的间隔
+                  labelPadding: EdgeInsets.symmetric(horizontal: 10.w),
+                  // 设置Tab之间的水平间隔
+                  // 使用标准Tab组件
+                  tabs: const [
+                    Tab(text: '全部'),
+                    Tab(text: 'CGM'),
+                    Tab(text: '胰岛素泵'),
+                  ],
+                  onTap: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                    // 切换Tab时重新加载数据
+                    _loadPatients();
                   },
                 ),
               ),
-              IconButton(
-                onPressed: _handleSearch,
-                icon: Icon(Icons.filter_alt, color: Colors.white, size: 20.w),
+              // 右侧操作按钮
+              Row(
+                children: [
+                  // 根据Android实现，始终显示扫码图标
+                  IconButton(
+                    onPressed: _handleScan,
+                    icon: Image.asset(
+                      'assets/icons/ic_pat_scan.png',
+                      width: 20.w,
+                      height: 20.h,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.qr_code_scanner, color: Colors.white, size: 20.w);
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _handleSearch,
+                    icon: Icon(Icons.filter_alt, color: Colors.white, size: 20.w),
+                  ),
+                  SizedBox(width: 16.w),
+                ],
               ),
-              SizedBox(width: 16.w),
             ],
           ),
-        ],
-      ),
+        ),
+        // CGM子标签 - 仅在CGM标签被选中时显示
+        if (_currentIndex == 1)
+          Container(
+            height: 50.h,
+            color: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    patientNotifier.setCgmSubTab(0);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
+                    margin: EdgeInsets.symmetric(horizontal: 8.w),
+                    decoration: BoxDecoration(
+                      color: patientState.cgmSubTab == 0 ? const Color(0xFF0073CF) : Colors.white,
+                      borderRadius: BorderRadius.circular(16.h),
+                      border: Border.all(color: const Color(0xFF0073CF), width: 1.w),
+                    ),
+                    child: Text(
+                      '佩戴中',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: patientState.cgmSubTab == 0 ? Colors.white : const Color(0xFF0073CF),
+                        fontWeight: patientState.cgmSubTab == 0 ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    patientNotifier.setCgmSubTab(1);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
+                    margin: EdgeInsets.symmetric(horizontal: 2.w),
+                    decoration: BoxDecoration(
+                      color: patientState.cgmSubTab == 1 ? const Color(0xFF0073CF) : Colors.white,
+                      borderRadius: BorderRadius.circular(16.h),
+                      border: Border.all(color: const Color(0xFF0073CF), width: 1.w),
+                    ),
+                    child: Text(
+                      '已完成',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: patientState.cgmSubTab == 1 ? Colors.white : const Color(0xFF0073CF),
+                        fontWeight: patientState.cgmSubTab == 1 ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // 胰岛素泵子标签 - 仅在胰岛素泵标签被选中时显示
+        if (_currentIndex == 2)
+          Container(
+            margin: EdgeInsets.only(top: 12, right: 12, bottom: 0, left: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 统计信息栏
+                Container(
+                  height: 80.h,
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Colors.grey.shade200, width: 1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Expanded(child: _buildInsStatItem('今日上泵', '0/0')),
+                      Expanded(child: _buildInsStatItem('今日下泵', '0/0')),
+                      Expanded(child: _buildInsStatItem('换管路', '0/0')),
+                      Expanded(child: _buildInsStatItem('其他', '0/0')),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// 构建胰岛素泵统计项
+  Widget _buildInsStatItem(String title, String value) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontSize: 14.sp, color: const Color(0xFF666666)),
+        ),
+        SizedBox(height: 2.h),
+        Text(
+          value,
+          style: TextStyle(fontSize: 18.sp, color: const Color(0xFF0073CF), fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 
@@ -216,9 +324,7 @@ class _PatientPageState extends ConsumerState<PatientPage>
     final patientState = ref.watch(patientProvider);
 
     if (patientState.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF0073CF)),
-      );
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF0073CF)));
     }
 
     if (patientState.error != null) {
@@ -271,32 +377,16 @@ class _PatientPageState extends ConsumerState<PatientPage>
         switch (_currentIndex) {
           case 0:
             final patient = patients[index] as Patient;
-            return PatientListItem(
-              patient: patient,
-              onTap: () => _handlePatientTap(patient),
-              onMeasureTap: () => _handleMeasureTap(patient),
-            );
+            return PatientListItem(patient: patient, onTap: () => _handlePatientTap(patient), onMeasureTap: () => _handleMeasureTap(patient));
           case 1:
             final cgmPatient = patients[index] as CGMPatient;
-            return CGMPatientListItem(
-              patient: cgmPatient,
-              onTap: () => _handlePatientTap(cgmPatient),
-              onMeasureTap: () => _handleMeasureTap(cgmPatient),
-            );
+            return CGMPatientListItem(patient: cgmPatient, onTap: () => _handlePatientTap(cgmPatient), onMeasureTap: () => _handleMeasureTap(cgmPatient));
           case 2:
             final insPatient = patients[index] as InsPatient;
-            return InsPatientListItem(
-              patient: insPatient,
-              onTap: () => _handlePatientTap(insPatient),
-              onMeasureTap: () => _handleMeasureTap(insPatient),
-            );
+            return InsPatientListItem(patient: insPatient, onTap: () => _handlePatientTap(insPatient), onMeasureTap: () => _handleMeasureTap(insPatient));
           default:
             final patient = patients[index] as Patient;
-            return PatientListItem(
-              patient: patient,
-              onTap: () => _handlePatientTap(patient),
-              onMeasureTap: () => _handleMeasureTap(patient),
-            );
+            return PatientListItem(patient: patient, onTap: () => _handlePatientTap(patient), onMeasureTap: () => _handleMeasureTap(patient));
         }
       },
     );
@@ -384,14 +474,8 @@ class _PatientPageState extends ConsumerState<PatientPage>
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: '姓名/床号/住院号',
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Color(0xFF999999),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(4.r),
-                        borderSide: BorderSide.none,
-                      ),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFF999999)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(4.r), borderSide: BorderSide.none),
                       filled: true,
                       fillColor: const Color(0xFFF5F5F5),
                     ),
@@ -411,33 +495,16 @@ class _PatientPageState extends ConsumerState<PatientPage>
                           child: ListView.builder(
                             itemCount: _departments.keys.length,
                             itemBuilder: (context, index) {
-                              final department = _departments.keys.elementAt(
-                                index,
-                              );
-                              final isSelected =
-                                  _selectedDepartment == department;
+                              final department = _departments.keys.elementAt(index);
+                              final isSelected = _selectedDepartment == department;
                               return GestureDetector(
-                                onTap: () =>
-                                    _handleDepartmentSelect(department),
+                                onTap: () => _handleDepartmentSelect(department),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                    vertical: 14.h,
-                                  ),
-                                  color: isSelected
-                                      ? Colors.white
-                                      : const Color(0xFFF5F5F5),
+                                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                                  color: isSelected ? Colors.white : const Color(0xFFF5F5F5),
                                   child: Text(
                                     department,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: isSelected
-                                          ? const Color(0xFF0073CF)
-                                          : Colors.black,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
+                                    style: TextStyle(fontSize: 14.sp, color: isSelected ? const Color(0xFF0073CF) : Colors.black, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
                                   ),
                                 ),
                               );
@@ -462,21 +529,11 @@ class _PatientPageState extends ConsumerState<PatientPage>
                               return GestureDetector(
                                 onTap: () => _handleWardSelect(ward),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w,
-                                    vertical: 14.h,
-                                  ),
-                                  color: isSelected
-                                      ? const Color(0xFFE6F4FF)
-                                      : Colors.white,
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+                                  color: isSelected ? const Color(0xFFE6F4FF) : Colors.white,
                                   child: Text(
                                     ward,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: isSelected
-                                          ? const Color(0xFF0073CF)
-                                          : Colors.black,
-                                    ),
+                                    style: TextStyle(fontSize: 14.sp, color: isSelected ? const Color(0xFF0073CF) : Colors.black),
                                   ),
                                 ),
                               );
@@ -507,17 +564,12 @@ class _PatientPageState extends ConsumerState<PatientPage>
                           },
                           style: OutlinedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 12.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.r),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
                             side: const BorderSide(color: Color(0xFF0073CF)),
                           ),
                           child: Text(
                             '取消',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: const Color(0xFF0073CF),
-                            ),
+                            style: TextStyle(fontSize: 14.sp, color: const Color(0xFF0073CF)),
                           ),
                         ),
                       ),
@@ -535,17 +587,12 @@ class _PatientPageState extends ConsumerState<PatientPage>
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 12.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.r),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.r)),
                             backgroundColor: const Color(0xFF0073CF),
                           ),
                           child: Text(
                             '确定',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 14.sp, color: Colors.white),
                           ),
                         ),
                       ),
