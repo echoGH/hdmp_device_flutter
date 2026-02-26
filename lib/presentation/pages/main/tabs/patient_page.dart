@@ -266,14 +266,7 @@ class _PatientPageState extends ConsumerState<PatientPage> with TickerProviderSt
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 1, blurRadius: 4, offset: const Offset(0, 2))],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -297,6 +290,7 @@ class _PatientPageState extends ConsumerState<PatientPage> with TickerProviderSt
               ],
             ),
           ),
+        SizedBox(height: 8.h),
       ],
     );
   }

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="hdmp_device_flutter"
+        android:label="血糖管理系统_flutter版"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
